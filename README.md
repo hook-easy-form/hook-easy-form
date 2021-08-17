@@ -16,6 +16,7 @@ npm install hook-easy-form
 
 <details>
   <summary>Simple form</summary>
+  
 ```jsx
 import React from 'react';
 import easyHook from 'hook-easy-form';
