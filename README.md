@@ -217,7 +217,7 @@ const FormComponent = () => {
 
 ### Additional
 
-For make `disable` property work, provide `required=true` to options object.  
+For make `disabled` property work, provide `required=true` to options object.  
 
 ```js
 // Little example of form
