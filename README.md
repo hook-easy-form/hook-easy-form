@@ -14,8 +14,8 @@ npm install hook-easy-form
 
 ## Usage
 
-Simple form
-
+<details>
+  <summary>Simple form</summary>
 ```jsx
 import React from 'react';
 import easyHook from 'hook-easy-form';
@@ -62,10 +62,12 @@ const FormComponent = () => {
   </form>
 }
 ```
+</details>
 
-Simple form with validation and without tag <form>
+<details>
+  <summary>Simple form with validation and without tag <b>form</b> </summary>
 
-```jsx
+  ```jsx
 import React from 'react';
 import easyHook from 'hook-easy-form';
 
@@ -124,8 +126,10 @@ const FormComponent = () => {
   </div>
 }
 ```
+</details>
 
-Simple form with default values
+<details>
+  <summary>Simple form with default values</summary>
 
 ```jsx
 import React from 'react';
@@ -186,6 +190,7 @@ const FormComponent = () => {
 }
 
 ```
+</details>
 
 
 ## Hook props
