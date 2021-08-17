@@ -8,7 +8,6 @@ export type Item = {
   error?: string;
   touched?: boolean;
   validate?: RULES;
-  asyncValidation?: (v: any, p: OTHER_VALUES) => Promise<string>;
 };
 
 export type FormArray = Item[];
@@ -33,9 +32,9 @@ export type SetValueManually = (name?: string, value?: string) => void;
 export type UpdateDefaultValues = (v: DefaultValues) => void;
 export type UpdateFormArray = (array: FormArray) => void;
 
-export type HookType<T> = {
+export type HookType<T, U> = {
   formArray: Item[];
-  formObject: FormObject;
+  formObject: U;
   resetEvent: ResetEvent;
   updateEvent: UpdateEvent;
   setErrorManually: SetErrorManually;
@@ -45,4 +44,5 @@ export type HookType<T> = {
   submitEvent: OnSubmit<T>;
   pristine: boolean;
   valid: boolean;
+  disabled: boolean;
 };

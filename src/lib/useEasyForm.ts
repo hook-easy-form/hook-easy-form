@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 
 import { validator } from './utils/validator';
 import { transformArrayToObject } from './utils/transformArrayToObject';
@@ -6,10 +6,12 @@ import { hasAnyErrorsInForm, checkFormValid } from './utils/hasErrors';
 import { getOutputObject, getOtherValues } from './utils/getOutputObject';
 import { compareValues } from './utils/compareValuesInArrays';
 import { setDefaultValues } from './utils/setDefaultValuesToArray';
+import { checkRequiredProperty } from './utils/checkRequiredProperty';
 
 import {
   EasyFormTypes,
   FormArray,
+  FormObject,
   OnSubmit,
   HookType,
   SetValueManually,
@@ -17,28 +19,44 @@ import {
   UpdateEvent,
   UpdateFormArray,
   UpdateDefaultValues,
+  Item,
 } from './types';
 
-export const useEasyForm = <T>({
+export const useEasyForm = <
+  T extends Record<string, unknown>,
+  U extends Record<string, Item> = FormObject
+>({
   defaultValues,
   initialForm,
   resetAfterSubmit,
-}: EasyFormTypes): HookType<T> => {
+}: EasyFormTypes): HookType<T, U> => {
   const [formArray, setFormArray] = useState<FormArray>(
     setDefaultValues(initialForm, defaultValues),
   );
 
   const df = useRef(defaultValues || {});
-  const formObject = transformArrayToObject(formArray);
 
-  const pristine = compareValues(
-    Array.isArray(initialForm) ? setDefaultValues(initialForm, df.current) : [],
+  const formObject = useMemo(() => transformArrayToObject(formArray) as U, [
     formArray,
-  );
+  ]);
 
-  const valid =
-    !hasAnyErrorsInForm(formArray, getOtherValues(formArray)) &&
-    checkFormValid(formArray);
+  const disabled = useMemo(() => checkRequiredProperty(formArray), [formArray]);
+
+  const pristine = useMemo(() => {
+    return compareValues(
+      Array.isArray(initialForm)
+        ? setDefaultValues(initialForm, df.current)
+        : [],
+      formArray,
+    );
+  }, [formArray]);
+
+  const valid = useMemo(
+    () =>
+      !hasAnyErrorsInForm(formArray, getOtherValues(formArray)) &&
+      checkFormValid(formArray),
+    [formArray],
+  );
 
   const resetEvent = () => {
     if (!Array.isArray(initialForm)) return;
@@ -138,5 +156,6 @@ export const useEasyForm = <T>({
     submitEvent,
     pristine,
     valid,
+    disabled,
   };
 };

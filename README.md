@@ -215,6 +215,44 @@ const FormComponent = () => {
 | --- | --- | --- | --- | --- |
 | defaultValues | `object` | false | false | The values with which to initialize your form |
 
+### Additional
+
+For make `disable` property work, provide `required=true` to options object.  
+
+```js
+// Little example of form
+
+const form = [
+  {
+    name: 'firstName',
+    value: '',
+    options: {
+      type: 'text',
+      required: true
+    },
+  },
+  {
+    name: 'lastName',
+    value: '',
+    options: {
+      type: 'text',
+      required: true
+    }
+  },
+  {
+    name: 'age',
+    value: '',
+    options: {
+      type: 'number',
+      required: true
+    }
+  },
+];
+
+```
+
+
+
 ## Hook actions API
 
 ```javascript
@@ -229,6 +267,7 @@ const FormComponent = () => {
   setValueManually // takes a name and value as a params, and immediately set value for current name
   pristine // true when the current form values are the same as the initialValues, false otherwise.
   valid // true when the form is valid (has no validation errors), false otherwise.
+  disabled // boolean, calculated from required properties inside item options object 
 ```
 
 ## Contribute
