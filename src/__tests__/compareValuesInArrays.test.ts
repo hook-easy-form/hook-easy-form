@@ -1,4 +1,4 @@
-import { compareValues } from '../lib/utils/compareValuesInArrays';
+import { compareValues } from '../lib/helpers';
 
 describe('compareValues()', () => {
   const mockArray = [

@@ -4,6 +4,8 @@ export type OTHER_VALUES = { [key in string]: any };
 export type Item = {
   name: string;
   value?: any;
+  required?: boolean;
+  onChangeValidate?: boolean;
   options?: { [Key in string]: any };
   error?: string;
   touched?: boolean;
@@ -26,6 +28,7 @@ export type OnSubmit<T> = (
 ) => ((event: React.FormEvent<HTMLFormElement>) => void) | undefined;
 
 export type ResetEvent = () => void;
+export type RunValidate = (name: string) => void;
 export type UpdateEvent = (e?: any) => void;
 export type SetErrorManually = (name?: string, error?: string) => void;
 export type SetValueManually = (name?: string, value?: string) => void;
@@ -42,6 +45,7 @@ export type HookType<T, U> = {
   updateDefaultValues: UpdateDefaultValues;
   updateFormArray: UpdateFormArray;
   submitEvent: OnSubmit<T>;
+  runValidate: RunValidate;
   pristine: boolean;
   valid: boolean;
   disabled: boolean;

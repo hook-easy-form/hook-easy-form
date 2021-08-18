@@ -1,4 +1,4 @@
-import { getOutputObject, getOtherValues } from '../lib/utils/getOutputObject';
+import { getOutputObject, getOtherValues } from '../lib/helpers';
 
 const mockArray = [
   {

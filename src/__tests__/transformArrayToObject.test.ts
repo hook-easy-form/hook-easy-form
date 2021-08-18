@@ -1,4 +1,4 @@
-import { transformArrayToObject } from '../lib/utils/transformArrayToObject';
+import { transformArrayToObject } from '../lib/helpers';
 
 const mockArray = [
   {

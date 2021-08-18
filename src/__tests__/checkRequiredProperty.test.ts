@@ -1,4 +1,4 @@
-import { checkRequiredProperty } from '../lib/utils/checkRequiredProperty';
+import { checkRequiredProperty } from '../lib/helpers';
 
 describe('checkRequiredProperty()', () => {
   const mockArray = [
@@ -15,7 +15,7 @@ describe('checkRequiredProperty()', () => {
   it('should return true', () => {
     const data = mockArray.map((el) => ({
       ...el,
-      options: { required: true },
+      required: true,
     }));
 
     expect(checkRequiredProperty(data)).toBe(false);

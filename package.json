@@ -1,6 +1,6 @@
 {
   "name": "hook-easy-form",
-  "version": "2.7.1",
+  "version": "2.7.2",
   "types": "build/index.d.ts",
   "main": "build/index.js",
   "module": "build/index.es.js",

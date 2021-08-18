@@ -1,4 +1,4 @@
-import { validator } from '../lib/utils/validator';
+import { validator } from '../lib/helpers';
 
 const rules = {
   required: (v: any) => (v.trim() === '' ? 'Required' : ''),

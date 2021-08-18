@@ -204,8 +204,10 @@ const FormComponent = () => {
 | value | `any` | undefined | false | Value for this object |
 | error | `string` | ` ` | false | String error |
 | touched | `boolean` | false | false | The value indicates whether it has been changed before |
-| validate | `object of rules` | undefined | false | Object with functions for validate, function receive two arguments, current value and object with otherValues |
-| options | `object` | undefined | false | Object for rest user properties, it can be - type, placeholder, label, some options etc |
+| validate | `object of rules` | {} | false | Object with functions for validate, function receive two arguments, current value and object with otherValues |
+| required | `boolean` | false | false | This field will be track inside `disabled` property |
+| onChangeValidate | `boolean` | false | false | Should validate this field each time when it change? |
+| options | `object` | {} | false | Object for rest user properties, it can be - type, placeholder, label, some options etc |
 
 
 * __resetAfterSubmit__
@@ -220,43 +222,6 @@ const FormComponent = () => {
 | Name | Type | Default | Required | Description |
 | --- | --- | --- | --- | --- |
 | defaultValues | `object` | false | false | The values with which to initialize your form |
-
-### Additional
-
-For make `disabled` property work, provide `required=true` to options object.  
-
-```js
-// Little example of form
-
-const form = [
-  {
-    name: 'firstName',
-    value: '',
-    options: {
-      type: 'text',
-      required: true
-    },
-  },
-  {
-    name: 'lastName',
-    value: '',
-    options: {
-      type: 'text',
-      required: true
-    }
-  },
-  {
-    name: 'age',
-    value: '',
-    options: {
-      type: 'number',
-      required: true
-    }
-  },
-];
-
-```
-
 
 
 ## Hook actions API
@@ -273,7 +238,8 @@ const form = [
   setValueManually // takes a name and value as a params, and immediately set value for current name
   pristine // true when the current form values are the same as the initialValues, false otherwise.
   valid // true when the form is valid (has no validation errors), false otherwise.
-  disabled // boolean, calculated from required properties inside item options object 
+  disabled // boolean, calculated from required properties
+  runValidate // takes a name and runs all validations functions belongs to this field
 ```
 
 ## Contribute

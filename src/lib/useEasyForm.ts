@@ -1,12 +1,17 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
 
-import { validator } from './utils/validator';
-import { transformArrayToObject } from './utils/transformArrayToObject';
-import { hasAnyErrorsInForm, checkFormValid } from './utils/hasErrors';
-import { getOutputObject, getOtherValues } from './utils/getOutputObject';
-import { compareValues } from './utils/compareValuesInArrays';
-import { setDefaultValues } from './utils/setDefaultValuesToArray';
-import { checkRequiredProperty } from './utils/checkRequiredProperty';
+import {
+  checkRequiredProperty,
+  compareValues,
+  getOutputObject,
+  getOtherValues,
+  hasAnyErrorsInForm,
+  checkFormValid,
+  setDefaultValues,
+  transformArrayToObject,
+  validator,
+  setPropertiesToForm,
+} from './helpers';
 
 import {
   EasyFormTypes,
@@ -20,6 +25,7 @@ import {
   UpdateFormArray,
   UpdateDefaultValues,
   Item,
+  RunValidate,
 } from './types';
 
 export const useEasyForm = <
@@ -30,11 +36,14 @@ export const useEasyForm = <
   initialForm,
   resetAfterSubmit,
 }: EasyFormTypes): HookType<T, U> => {
-  const [formArray, setFormArray] = useState<FormArray>(
-    setDefaultValues(initialForm, defaultValues),
+  const df = useRef(defaultValues || {});
+  const updatedInitialForm = useRef<FormArray>(
+    setPropertiesToForm(initialForm),
   );
 
-  const df = useRef(defaultValues || {});
+  const [formArray, setFormArray] = useState<FormArray>(
+    setDefaultValues(updatedInitialForm.current, defaultValues),
+  );
 
   const formObject = useMemo(() => transformArrayToObject(formArray) as U, [
     formArray,
@@ -44,9 +53,7 @@ export const useEasyForm = <
 
   const pristine = useMemo(() => {
     return compareValues(
-      Array.isArray(initialForm)
-        ? setDefaultValues(initialForm, df.current)
-        : [],
+      setDefaultValues(updatedInitialForm.current, df.current),
       formArray,
     );
   }, [formArray]);
@@ -59,20 +66,37 @@ export const useEasyForm = <
   );
 
   const resetEvent = () => {
-    if (!Array.isArray(initialForm)) return;
-    setFormArray(setDefaultValues(initialForm, df.current));
+    setFormArray(setDefaultValues(updatedInitialForm.current, df.current));
   };
 
   const updateDefaultValues: UpdateDefaultValues = (v) => {
     if (!v || Object.keys(v).length === 0) return;
     df.current = v;
-    setFormArray(setDefaultValues(initialForm, v));
+    setFormArray(setDefaultValues(updatedInitialForm.current, v));
   };
 
   const updateFormArray: UpdateFormArray = (array) => {
     if (!array || !Array.isArray(array)) return;
 
-    setFormArray(array);
+    const newInitialForm = setPropertiesToForm(array);
+    updatedInitialForm.current = newInitialForm;
+    setFormArray(newInitialForm);
+  };
+
+  const runValidate: RunValidate = (name) => {
+    if (!name) return;
+
+    setFormArray((ps) =>
+      ps.map((el) => {
+        if (el.name === name) {
+          const otherValues = getOtherValues(ps, el.name);
+          const error = validator(el.value, otherValues, el.validate);
+
+          return { ...el, error, touched: true };
+        }
+        return el;
+      }),
+    );
   };
 
   const updateEvent: UpdateEvent = (e) => {
@@ -80,7 +104,7 @@ export const useEasyForm = <
     const { value, type, checked, name } = e.target;
     const v = type === 'checkbox' ? checked : value;
 
-    setFormArray((ps: FormArray) => {
+    setFormArray((ps) => {
       const newForm = ps.map((el) => {
         if (el.name === name) {
           return { ...el, value: v, touched: true };
@@ -89,6 +113,8 @@ export const useEasyForm = <
       });
 
       return newForm.map((el) => {
+        if (!el.onChangeValidate) return { ...el, error: '' };
+
         const otherValues = getOtherValues(newForm, el.name);
         const error = validator(el.value, otherValues, el.validate);
         return { ...el, error };
@@ -97,13 +123,13 @@ export const useEasyForm = <
   };
 
   const setErrorManually: SetErrorManually = (name, error) => {
-    setFormArray((ps: FormArray) =>
+    setFormArray((ps) =>
       ps.map((el) => (el.name === name ? { ...el, touched: true, error } : el)),
     );
   };
 
   const setValueManually: SetValueManually = (name, value) => {
-    setFormArray((ps: FormArray) => {
+    setFormArray((ps) => {
       const newForm = ps.map((el) => {
         if (el.name === name) {
           return { ...el, value, touched: true };
@@ -112,6 +138,8 @@ export const useEasyForm = <
       });
 
       return newForm.map((el) => {
+        if (!el.onChangeValidate) return { ...el, error: '' };
+
         const otherValues = getOtherValues(newForm, el.name);
         const error = validator(el.value, otherValues, el.validate);
         return { ...el, error };
@@ -119,6 +147,7 @@ export const useEasyForm = <
     });
   };
 
+  // eslint-disable-next-line consistent-return
   const submitEvent: OnSubmit<T> = (callback) => async (e) => {
     if (e) {
       e.preventDefault();
@@ -147,12 +176,13 @@ export const useEasyForm = <
   return {
     formArray,
     formObject,
-    resetEvent: useCallback(resetEvent, [df.current]),
-    updateEvent: useCallback(updateEvent, [formArray]),
-    setErrorManually: useCallback(setErrorManually, [formArray]),
-    setValueManually: useCallback(setValueManually, [formArray]),
-    updateDefaultValues: useCallback(updateDefaultValues, [formArray]),
-    updateFormArray: useCallback(updateFormArray, [formArray, df.current]),
+    resetEvent: useCallback(resetEvent, []),
+    updateEvent: useCallback(updateEvent, []),
+    setErrorManually: useCallback(setErrorManually, []),
+    setValueManually: useCallback(setValueManually, []),
+    updateDefaultValues: useCallback(updateDefaultValues, []),
+    updateFormArray: useCallback(updateFormArray, []),
+    runValidate: useCallback(runValidate, []),
     submitEvent,
     pristine,
     valid,

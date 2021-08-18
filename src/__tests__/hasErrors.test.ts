@@ -1,4 +1,4 @@
-import { hasAnyErrorsInForm, checkFormValid } from '../lib/utils/hasErrors';
+import { hasAnyErrorsInForm, checkFormValid } from '../lib/helpers';
 import { OTHER_VALUES } from '../lib/types';
 
 const mockArray = [

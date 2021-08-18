@@ -1,4 +1,4 @@
-import { setDefaultValues } from '../lib/utils/setDefaultValuesToArray';
+import { setDefaultValues } from '../lib/helpers';
 
 describe('setDefaultValues()', () => {
   const mockArray = [
