@@ -1,23 +1,59 @@
-export type RULES = { [key in string]?: (v: any, p: OTHER_VALUES) => string };
-export type OTHER_VALUES = { [key in string]: any };
-
-export type Item = {
+type RULES = Record<string, (v: any, p: OTHER_VALUES) => string>;
+type OTHER_VALUES = Record<string, any>;
+type FormItem = {
   name: string;
   value?: any;
   required?: boolean;
   onChangeValidate?: boolean;
-  options?: { [Key in string]: any };
+  options?: Record<string, any>;
   error?: string;
   touched?: boolean;
   validate?: RULES;
 };
+type DefaultValues = Record<string, any>;
 
-export type FormArray = Item[];
-export type FormObject = { [K in string]: Item };
-export type DefaultValues = { [K in string]: any };
+export type FormArray = FormItem[];
+export type FormObject<T extends string> = Record<T, FormItem>;
+
+export type ResetEvent = () => void;
+export type RunValidate = (name: string) => void;
+export type UpdateEvent = (e?: any) => void;
+export type SetErrorManually = (name?: string, error?: string) => void;
+export type SetValueManually = (name?: string, value?: string) => void;
+export type UpdateDefaultValues = (v: DefaultValues) => void;
+export type UpdateFormArray = (array: FormArray) => void;
+export type CheckRequiredProperty = (array: FormArray) => boolean;
+export type GetProps = (
+  name: string,
+  rest?: Record<string, any>,
+  onlyValidDomAttr?: boolean,
+) => Partial<FormItem> & { onChange: UpdateEvent } & Record<string, any>;
+export type CompareValues = (
+  initForm: FormArray,
+  currentForm: FormArray,
+) => boolean;
+export type GetOtherValues = (
+  array: FormArray,
+  exclude?: string,
+) => OTHER_VALUES;
+export type Validator = (
+  value: any,
+  otherValues: OTHER_VALUES,
+  rules?: RULES,
+) => string;
+export type HasAnyErrorsInForm = (
+  array: FormArray,
+  otherValues: OTHER_VALUES,
+) => boolean;
+export type CheckFormValid = (array: FormArray) => boolean;
+export type SetDefaultValues = (
+  array: FormArray,
+  object?: DefaultValues,
+) => FormArray;
+export type SetPropertiesToForm = (array: FormArray) => FormArray;
 
 export type EasyFormTypes = {
-  initialForm: Item[];
+  initialForm: FormItem[];
   resetAfterSubmit?: boolean;
   defaultValues?: DefaultValues;
 };
@@ -27,26 +63,24 @@ export type OnSubmit<T> = (
   event?: React.BaseSyntheticEvent,
 ) => ((event: React.FormEvent<HTMLFormElement>) => void) | undefined;
 
-export type ResetEvent = () => void;
-export type RunValidate = (name: string) => void;
-export type UpdateEvent = (e?: any) => void;
-export type SetErrorManually = (name?: string, error?: string) => void;
-export type SetValueManually = (name?: string, value?: string) => void;
-export type UpdateDefaultValues = (v: DefaultValues) => void;
-export type UpdateFormArray = (array: FormArray) => void;
+type HookTypes<U extends string> = {
+  formArray: FormItem[];
+  formObject: FormObject<U>;
+  pristine: boolean;
+  valid: boolean;
+  disabled: boolean;
+};
 
-export type HookType<T, U> = {
-  formArray: Item[];
-  formObject: U;
+type HookMethods<T> = {
   resetEvent: ResetEvent;
   updateEvent: UpdateEvent;
   setErrorManually: SetErrorManually;
   setValueManually: SetValueManually;
   updateDefaultValues: UpdateDefaultValues;
   updateFormArray: UpdateFormArray;
-  submitEvent: OnSubmit<T>;
   runValidate: RunValidate;
-  pristine: boolean;
-  valid: boolean;
-  disabled: boolean;
+  submitEvent: OnSubmit<T>;
+  getProps: GetProps;
 };
+
+export type Hook<T, U extends string> = HookMethods<T> & HookTypes<U>;

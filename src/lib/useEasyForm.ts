@@ -16,26 +16,26 @@ import {
 import {
   EasyFormTypes,
   FormArray,
-  FormObject,
   OnSubmit,
-  HookType,
-  SetValueManually,
-  SetErrorManually,
-  UpdateEvent,
+  Hook,
   UpdateFormArray,
   UpdateDefaultValues,
-  Item,
+  SetValueManually,
+  SetErrorManually,
   RunValidate,
+  UpdateEvent,
+  ResetEvent,
+  GetProps,
 } from './types';
 
 export const useEasyForm = <
   T extends Record<string, unknown>,
-  U extends Record<string, Item> = FormObject
+  U extends string
 >({
   defaultValues,
   initialForm,
   resetAfterSubmit,
-}: EasyFormTypes): HookType<T, U> => {
+}: EasyFormTypes): Hook<T, U> => {
   const df = useRef(defaultValues || {});
   const updatedInitialForm = useRef<FormArray>(
     setPropertiesToForm(initialForm),
@@ -45,27 +45,29 @@ export const useEasyForm = <
     setDefaultValues(updatedInitialForm.current, defaultValues),
   );
 
-  const formObject = useMemo(() => transformArrayToObject(formArray) as U, [
+  const formObject = useMemo(() => transformArrayToObject<U>(formArray), [
     formArray,
   ]);
 
-  const disabled = useMemo(() => checkRequiredProperty(formArray), [formArray]);
+  const disabled = useMemo<boolean>(() => checkRequiredProperty(formArray), [
+    formArray,
+  ]);
 
-  const pristine = useMemo(() => {
+  const pristine = useMemo<boolean>(() => {
     return compareValues(
       setDefaultValues(updatedInitialForm.current, df.current),
       formArray,
     );
   }, [formArray]);
 
-  const valid = useMemo(
+  const valid = useMemo<boolean>(
     () =>
       !hasAnyErrorsInForm(formArray, getOtherValues(formArray)) &&
       checkFormValid(formArray),
     [formArray],
   );
 
-  const resetEvent = () => {
+  const resetEvent: ResetEvent = () => {
     setFormArray(setDefaultValues(updatedInitialForm.current, df.current));
   };
 
@@ -173,6 +175,31 @@ export const useEasyForm = <
     if (resetAfterSubmit) resetEvent();
   };
 
+  const getProps: GetProps = (n, rest, onlyValidDomAttr = false) => {
+    const element = formArray.find((e) => e.name === n);
+    if (!element) return { onChange: updateEvent, ...rest };
+
+    const { name, value, touched, error } = element;
+
+    if (onlyValidDomAttr) {
+      return {
+        name,
+        value,
+        onChange: updateEvent,
+        ...rest,
+      };
+    }
+
+    return {
+      name,
+      value,
+      onChange: updateEvent,
+      touched,
+      error,
+      ...rest,
+    };
+  };
+
   return {
     formArray,
     formObject,
@@ -184,6 +211,7 @@ export const useEasyForm = <
     updateFormArray: useCallback(updateFormArray, []),
     runValidate: useCallback(runValidate, []),
     submitEvent,
+    getProps: useCallback(getProps, [formArray]),
     pristine,
     valid,
     disabled,
