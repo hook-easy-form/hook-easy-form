@@ -193,6 +193,78 @@ const FormComponent = () => {
 ```
 </details>
 
+<details>
+  <summary>Simple typescript example </summary>
+
+
+  ```jsx
+  import { FN } from 'react';
+  import easyHook from 'hook-easy-form';
+
+
+  type FormData = {
+    firstName: string;
+    lastName: string;
+  };
+
+  type Objects = 'firstName' | 'lastName';
+
+  const Component: FN = () => {
+
+    const { formObject, submitEvent, disabled, valid, runValidate, getProps } =
+      useEasyForm<FormData, Objects>({
+        initialForm: [
+          {
+            name: 'firstName',
+            value: '',
+            required: true,
+            options: {
+              type: 'text',
+            },
+          },
+          {
+            name: 'lastName',
+            value: '',
+            required: true,
+            options: {
+              type: 'text',
+            },
+          },
+        ],
+      });
+
+    const { firstName, lastName } = formObject;
+
+    const onSubmit = submitEvent((d) => console.log('d', d));
+
+    const onBlur = (e: React.FocusEvent<HTMLInputElement>) =>
+      runValidate(e.target.name);
+
+    return (
+      <div>
+        <form onSubmit={onSubmit}>
+          <input
+            {...getProps(firstName.name, { type: firstName.options?.type })}
+            onBlur={onBlur}
+          />
+          <input
+            {...getProps(lastName.name, { type: lastName.options?.type })}
+            onBlur={onBlur}
+          />
+
+          <button
+            type="submit"
+            disabled={disabled || !valid}
+          >
+            submit
+          </button>
+        </form>
+      </div>
+    );
+  };
+  ```
+</details>
+
 
 ## Hook props
 
@@ -240,6 +312,7 @@ const FormComponent = () => {
   valid // true when the form is valid (has no validation errors), false otherwise.
   disabled // boolean, calculated from required properties
   runValidate // takes a name and runs all validations functions belongs to this field
+  getProps // takes a name, some object with params(optional), and boolean value for exclude not valid Dom attr (optional) => returns object with future props for element
 ```
 
 ## Contribute
