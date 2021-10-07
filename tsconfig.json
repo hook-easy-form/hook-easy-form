@@ -9,6 +9,7 @@
 		"moduleResolution": "node",
 		"types": ["node", "jest"],
 		"allowSyntheticDefaultImports": true,
+		"experimentalDecorators": true,
 		"plugins": [
 			{
 				"name": "typescript-tslint-plugin"
