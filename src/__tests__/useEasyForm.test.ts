@@ -574,4 +574,61 @@ describe('useEasyForm()', () => {
     expect(result.current.formArray).toEqual(expectedMockArray);
     expect(result.current.formObject).toEqual(expectedMockObject);
   });
+
+  it('getProps function with incorrect name passed', () => {
+    const { result } = renderHook(() =>
+      useEasyForm({ initialForm: mockArray }),
+    );
+
+    act(() => {
+      const props = result.current.getProps('bla-bla');
+      expect(Object.keys(props)).toEqual(['onChange']);
+    });
+  });
+
+  it('getProps function with correct name passed', () => {
+    const { result } = renderHook(() =>
+      useEasyForm({ initialForm: mockArray }),
+    );
+
+    act(() => {
+      const props = result.current.getProps('FN');
+      expect(Object.keys(props)).toEqual([
+        'name',
+        'value',
+        'onChange',
+        'touched',
+        'error',
+      ]);
+    });
+  });
+
+  it('getProps function with correct name passed and some extra props', () => {
+    const { result } = renderHook(() =>
+      useEasyForm({ initialForm: mockArray }),
+    );
+
+    act(() => {
+      const props = result.current.getProps('FN', { type: 'number' });
+      expect(Object.keys(props)).toEqual([
+        'name',
+        'value',
+        'onChange',
+        'touched',
+        'error',
+        'type',
+      ]);
+    });
+  });
+
+  it('getProps function with correct name passed and only valid Dom elements flag', () => {
+    const { result } = renderHook(() =>
+      useEasyForm({ initialForm: mockArray }),
+    );
+
+    act(() => {
+      const props = result.current.getProps('FN', {}, true);
+      expect(Object.keys(props)).toEqual(['name', 'value', 'onChange']);
+    });
+  });
 });

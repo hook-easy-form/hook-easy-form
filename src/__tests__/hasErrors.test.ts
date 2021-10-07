@@ -1,13 +1,11 @@
 import { hasAnyErrorsInForm, checkFormValid } from '../lib/helpers';
-import { OTHER_VALUES } from '../lib/types';
 
 const mockArray = [
   {
     name: 'FN',
     value: '',
     validate: {
-      required: (v: string, pv: OTHER_VALUES) =>
-        v.trim() === '' ? 'Required' : '',
+      required: (v: string) => (v.trim() === '' ? 'Required' : ''),
     },
   },
   {

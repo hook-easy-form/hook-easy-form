@@ -1,21 +1,23 @@
 import {
   FormArray,
   FormObject,
-  OTHER_VALUES,
-  RULES,
-  DefaultValues,
+  CheckRequiredProperty,
+  CompareValues,
+  GetOtherValues,
+  Validator,
+  HasAnyErrorsInForm,
+  CheckFormValid,
+  SetDefaultValues,
+  SetPropertiesToForm,
 } from './types';
 
-export const checkRequiredProperty = (currentForm: FormArray): boolean =>
+export const checkRequiredProperty: CheckRequiredProperty = (currentForm) =>
   currentForm.reduce((acc, el) => {
     if (!el.required || acc) return acc;
     return !(el.required && el.value);
   }, false as boolean);
 
-export const compareValues = (
-  initForm: FormArray,
-  currentForm: FormArray,
-): boolean => {
+export const compareValues: CompareValues = (initForm, currentForm) => {
   if (initForm.length === 0) return true;
   return currentForm.reduce((acc, item) => {
     if (!acc) return false;
@@ -32,10 +34,7 @@ export const getOutputObject = <T>(f: FormArray): T => {
   );
 };
 
-export const getOtherValues = (
-  f: FormArray,
-  exclude?: string,
-): OTHER_VALUES => {
+export const getOtherValues: GetOtherValues = (f, exclude) => {
   return f.reduce(
     (acc, elem) =>
       elem.name === exclude ? acc : { ...acc, [elem.name]: elem.value },
@@ -43,11 +42,7 @@ export const getOtherValues = (
   );
 };
 
-export const validator = (
-  value: any,
-  otherValues: OTHER_VALUES,
-  rules?: RULES,
-): string => {
+export const validator: Validator = (value, otherValues, rules) => {
   if (!rules || Object.keys(rules).length === 0) return '';
   return Object.keys(rules).reduce((acc, item) => {
     if (acc) return acc;
@@ -60,10 +55,7 @@ export const validator = (
   }, '' as string);
 };
 
-export const hasAnyErrorsInForm = (
-  f: FormArray,
-  otherValues: OTHER_VALUES,
-): boolean => {
+export const hasAnyErrorsInForm: HasAnyErrorsInForm = (f, otherValues) => {
   return f.reduce((acc, item) => {
     if (acc) return acc;
     const error = validator(item.value, otherValues, item.validate);
@@ -71,7 +63,7 @@ export const hasAnyErrorsInForm = (
   }, false as boolean);
 };
 
-export const checkFormValid = (f: FormArray): boolean => {
+export const checkFormValid: CheckFormValid = (f) => {
   return f.reduce((acc, item) => {
     if (!acc) return acc;
     if (item.error) return false;
@@ -79,10 +71,7 @@ export const checkFormValid = (f: FormArray): boolean => {
   }, true as boolean);
 };
 
-export const setDefaultValues = (
-  array: FormArray,
-  object?: DefaultValues,
-): FormArray => {
+export const setDefaultValues: SetDefaultValues = (array, object) => {
   if (!array || !Array.isArray(array) || array.length === 0) {
     return [];
   }
@@ -93,12 +82,17 @@ export const setDefaultValues = (
   );
 };
 
-export const transformArrayToObject = (a: FormArray): FormObject => {
-  if (!a || !Array.isArray(a) || a.length === 0) return {};
-  return a.reduce((acc, item) => ({ ...acc, [item.name]: item }), {});
+export const transformArrayToObject = <U extends string>(
+  a: FormArray,
+): FormObject<U> => {
+  if (!a || !Array.isArray(a) || a.length === 0) return {} as FormObject<U>;
+  return a.reduce(
+    (acc, item) => ({ ...acc, [item.name]: item }),
+    {},
+  ) as FormObject<U>;
 };
 
-export const setPropertiesToForm = (arr: FormArray): FormArray => {
+export const setPropertiesToForm: SetPropertiesToForm = (arr) => {
   if (!arr) return [];
 
   return arr.map((el) => {
