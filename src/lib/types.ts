@@ -1,4 +1,4 @@
-type RULES = Record<string, (v: any, p: OTHER_VALUES) => string>;
+type RULES = { [key in string]?: (v: any, p?: OTHER_VALUES) => string };
 type OTHER_VALUES = Record<string, any>;
 type FormItem = {
   name: string;
