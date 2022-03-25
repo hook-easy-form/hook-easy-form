@@ -105,6 +105,7 @@ export const setPropertiesToForm: SetPropertiesToForm = (arr) => {
 
     if (el.error === undefined) item.error = '';
     if (el.touched === undefined) item.touched = false;
+    if (el.isValidField === undefined) item.isValidField = true;
     return item;
   });
 };

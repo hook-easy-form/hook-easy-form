@@ -22,6 +22,7 @@ describe('setPropertiesToForm()', () => {
         options: {},
         validate: {},
         error: '',
+        isValidField: true,
         touched: false,
       },
     ];
@@ -46,6 +47,7 @@ describe('setPropertiesToForm()', () => {
         options: {},
         validate: {},
         error: '',
+        isValidField: true,
         touched: false,
       },
     ];
@@ -70,6 +72,7 @@ describe('setPropertiesToForm()', () => {
         options: {},
         validate: {},
         error: '',
+        isValidField: true,
         touched: false,
       },
     ];
@@ -94,6 +97,7 @@ describe('setPropertiesToForm()', () => {
         options: { type: 'text' },
         validate: {},
         error: '',
+        isValidField: true,
         touched: false,
       },
     ];
@@ -123,6 +127,7 @@ describe('setPropertiesToForm()', () => {
         options: {},
         error: '',
         touched: false,
+        isValidField: true,
       },
     ];
     expect(JSON.stringify(setPropertiesToForm(mockArray))).toEqual(
@@ -148,6 +153,7 @@ describe('setPropertiesToForm()', () => {
         options: {},
         validate: {},
         error: 'test',
+        isValidField: true,
         touched: false,
       },
     ];
@@ -172,6 +178,7 @@ describe('setPropertiesToForm()', () => {
         options: {},
         validate: {},
         error: '',
+        isValidField: true,
         touched: false,
       },
     ];

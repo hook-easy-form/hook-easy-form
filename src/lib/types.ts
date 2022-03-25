@@ -9,6 +9,7 @@ type FormItem = {
   error?: string;
   touched?: boolean;
   validate?: RULES;
+  isValidField?: boolean;
 };
 type DefaultValues = Record<string, any>;
 
@@ -19,7 +20,7 @@ export type ResetEvent = () => void;
 export type RunValidate = (name: string) => void;
 export type UpdateEvent = (e?: any) => void;
 export type SetErrorManually = (name?: string, error?: string) => void;
-export type SetValueManually = (name?: string, value?: string) => void;
+export type SetValueManually = (name?: string, value?: any) => void;
 export type UpdateDefaultValues = (v: DefaultValues) => void;
 export type UpdateFormArray = (array: FormArray) => void;
 export type CheckRequiredProperty = (array: FormArray) => boolean;
@@ -58,10 +59,12 @@ export type EasyFormTypes = {
   defaultValues?: DefaultValues;
 };
 
+/**
+ * return type is React.FormEvent<HTMLFormElement> | React.MouseEventHandler<HTMLButtonElement>
+ */
 export type OnSubmit<T> = (
   data: (data: T, event?: React.BaseSyntheticEvent) => void | Promise<void>,
-  event?: React.BaseSyntheticEvent,
-) => ((event: React.FormEvent<HTMLFormElement>) => void) | undefined;
+) => (e: any) => void;
 
 type HookTypes<U extends string> = {
   formArray: FormItem[];

@@ -9,30 +9,22 @@ const mockArray = [
   },
 ];
 
-const expectedMockArray = [
-  {
-    name: 'FN',
-    value: 'John',
-    required: false,
-    onChangeValidate: false,
-    options: {},
-    validate: {},
-    error: '',
-    touched: false,
-  },
-];
+const element = {
+  name: 'FN',
+  value: 'John',
+  required: false,
+  onChangeValidate: false,
+  options: {},
+  validate: {},
+  error: '',
+  isValidField: true,
+  touched: false,
+};
+
+const expectedMockArray = [element];
 
 const expectedMockObject = {
-  FN: {
-    name: 'FN',
-    value: 'John',
-    required: false,
-    onChangeValidate: false,
-    options: {},
-    validate: {},
-    error: '',
-    touched: false,
-  },
+  FN: element,
 };
 
 describe('useEasyForm()', () => {
@@ -106,6 +98,7 @@ describe('useEasyForm()', () => {
     const array = mockArray.map((el) => ({
       ...el,
       error: 'required',
+      isValidField: false,
       validate: rules,
       touched: true,
       value: '',
@@ -121,6 +114,7 @@ describe('useEasyForm()', () => {
         error: 'required',
         validate: rules,
         touched: true,
+        isValidField: false,
         required: false,
         onChangeValidate: false,
         options: {},
@@ -322,6 +316,7 @@ describe('useEasyForm()', () => {
       ...e,
       touched: true,
       error: 'Incorrect',
+      isValidField: false,
     }));
 
     const object = {
@@ -329,6 +324,7 @@ describe('useEasyForm()', () => {
         ...expectedMockObject.FN,
         touched: true,
         error: 'Incorrect',
+        isValidField: false,
       },
     };
 
@@ -549,12 +545,17 @@ describe('useEasyForm()', () => {
       result.current.runValidate('FN');
     });
 
-    const array = expectedMockArray.map((e) => ({ ...e, touched: true }));
+    const array = expectedMockArray.map((e) => ({
+      ...e,
+      touched: true,
+      isValidField: false,
+    }));
 
     const object = {
       FN: {
         ...expectedMockObject.FN,
         touched: true,
+        isValidField: false,
       },
     };
 

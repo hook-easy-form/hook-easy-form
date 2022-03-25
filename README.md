@@ -276,6 +276,7 @@ const FormComponent = () => {
 | value | `any` | undefined | false | Value for this object |
 | error | `string` | ` ` | false | String error |
 | touched | `boolean` | false | false | The value indicates whether it has been changed before |
+| isValidField | `boolean` | true | false | a boolean value which mean the field it was touched and doesn't have any validation errors |
 | validate | `object of rules` | {} | false | Object with functions for validate, function receive two arguments, current value and object with otherValues |
 | required | `boolean` | false | false | This field will be track inside `disabled` property |
 | onChangeValidate | `boolean` | false | false | Should validate this field each time when it change? |

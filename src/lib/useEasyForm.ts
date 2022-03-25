@@ -93,8 +93,9 @@ export const useEasyForm = <
         if (el.name === name) {
           const otherValues = getOtherValues(ps, el.name);
           const error = validator(el.value, otherValues, el.validate);
+          const isValidField = !!(!error && el.touched);
 
-          return { ...el, error, touched: true };
+          return { ...el, error, touched: true, isValidField };
         }
         return el;
       }),
@@ -119,14 +120,19 @@ export const useEasyForm = <
 
         const otherValues = getOtherValues(newForm, el.name);
         const error = validator(el.value, otherValues, el.validate);
-        return { ...el, error };
+        const isValidField = !!(!error && el.touched);
+        return { ...el, error, isValidField };
       });
     });
   };
 
   const setErrorManually: SetErrorManually = (name, error) => {
     setFormArray((ps) =>
-      ps.map((el) => (el.name === name ? { ...el, touched: true, error } : el)),
+      ps.map((el) =>
+        el.name === name
+          ? { ...el, touched: true, error, isValidField: false }
+          : el,
+      ),
     );
   };
 
@@ -144,7 +150,8 @@ export const useEasyForm = <
 
         const otherValues = getOtherValues(newForm, el.name);
         const error = validator(el.value, otherValues, el.validate);
-        return { ...el, error };
+        const isValidField = !!(!error && el.touched);
+        return { ...el, error, isValidField };
       });
     });
   };
@@ -159,15 +166,22 @@ export const useEasyForm = <
     const otherValues = getOtherValues(formArray);
     const hasAnyErrorInForm = hasAnyErrorsInForm(formArray, otherValues);
     if (hasAnyErrorInForm) {
-      return setFormArray(
-        formArray.map((el) => ({
-          ...el,
-          touched: true,
-          error: el.error
-            ? el.error
-            : validator(el.value, otherValues, el.validate),
-        })),
+      setFormArray(
+        formArray.map((el) => {
+          const error =
+            el.error || validator(el.value, otherValues, el.validate);
+          const isValidField = !error;
+          return {
+            ...el,
+            touched: true,
+            error: el.error
+              ? el.error
+              : validator(el.value, otherValues, el.validate),
+            isValidField,
+          };
+        }),
       );
+      return;
     }
 
     const data = getOutputObject<T>(formArray);
