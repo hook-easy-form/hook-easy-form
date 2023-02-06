@@ -26,6 +26,7 @@ import {
   UpdateEvent,
   ResetEvent,
   GetProps,
+  MultipleFieldUpdate,
 } from './types';
 
 export const useEasyForm = <
@@ -75,6 +76,10 @@ export const useEasyForm = <
     if (!v || Object.keys(v).length === 0) return;
     df.current = v;
     setFormArray(setDefaultValues(updatedInitialForm.current, v));
+  };
+
+  const multipleFieldUpdate: MultipleFieldUpdate = (fields) => {
+    setFormArray((ps) => setDefaultValues(ps, fields));
   };
 
   const updateFormArray: UpdateFormArray = (array) => {
@@ -221,6 +226,7 @@ export const useEasyForm = <
     updateEvent: useCallback(updateEvent, []),
     setErrorManually: useCallback(setErrorManually, []),
     setValueManually: useCallback(setValueManually, []),
+    multipleFieldUpdate: useCallback(multipleFieldUpdate, []),
     updateDefaultValues: useCallback(updateDefaultValues, []),
     updateFormArray: useCallback(updateFormArray, []),
     runValidate: useCallback(runValidate, []),

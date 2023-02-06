@@ -1,6 +1,6 @@
-type RULES = { [key in string]?: (v: any, p?: OTHER_VALUES) => string };
-type OTHER_VALUES = Record<string, any>;
-type FormItem = {
+export type RULES = { [key in string]?: (v: any, p?: OTHER_VALUES) => string };
+export type OTHER_VALUES = Record<string, any>;
+export type FormItem = {
   name: string;
   value?: any;
   required?: boolean;
@@ -11,7 +11,7 @@ type FormItem = {
   validate?: RULES;
   isValidField?: boolean;
 };
-type DefaultValues = Record<string, any>;
+export type DefaultValues = Record<string, any>;
 
 export type FormArray = FormItem[];
 export type FormObject<T extends string> = Record<T, FormItem>;
@@ -21,6 +21,7 @@ export type RunValidate = (name: string) => void;
 export type UpdateEvent = (e?: any) => void;
 export type SetErrorManually = (name?: string, error?: string) => void;
 export type SetValueManually = (name?: string, value?: any) => void;
+export type MultipleFieldUpdate = (v: Record<string, any>) => void;
 export type UpdateDefaultValues = (v: DefaultValues) => void;
 export type UpdateFormArray = (array: FormArray) => void;
 export type CheckRequiredProperty = (array: FormArray) => boolean;
@@ -79,6 +80,7 @@ type HookMethods<T> = {
   updateEvent: UpdateEvent;
   setErrorManually: SetErrorManually;
   setValueManually: SetValueManually;
+  multipleFieldUpdate: MultipleFieldUpdate;
   updateDefaultValues: UpdateDefaultValues;
   updateFormArray: UpdateFormArray;
   runValidate: RunValidate;

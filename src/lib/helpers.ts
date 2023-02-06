@@ -46,7 +46,7 @@ export const validator: Validator = (value, otherValues, rules) => {
   if (!rules || Object.keys(rules).length === 0) return '';
   return Object.keys(rules).reduce((acc, item) => {
     if (acc) return acc;
-    const validateFunc = rules[item as string];
+    const validateFunc = rules[item];
     if (validateFunc && typeof validateFunc === 'function') {
       return validateFunc(value, otherValues);
     }

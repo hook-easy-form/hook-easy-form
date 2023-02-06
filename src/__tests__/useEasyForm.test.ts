@@ -416,6 +416,36 @@ describe('useEasyForm()', () => {
     expect(result.current.formObject).toEqual(expectedMockObject);
   });
 
+  it('multipleFieldUpdate func simple case', () => {
+    const { result } = renderHook(() =>
+      useEasyForm({
+        initialForm: [
+          {
+            name: 'name1',
+            value: '',
+          },
+          {
+            name: 'name2',
+            value: '',
+          },
+        ],
+      }),
+    );
+
+    act(() => {
+      result.current.multipleFieldUpdate({ name1: 'John' });
+    });
+
+    const object1 = { ...element, name: 'name1', value: 'John' };
+    const object2 = { ...element, name: 'name2', value: '' };
+
+    expect(result.current.formArray).toEqual([object1, object2]);
+    expect(result.current.formObject).toEqual({
+      name1: object1,
+      name2: object2,
+    });
+  });
+
   it('valid property should be true', () => {
     const { result } = renderHook(() =>
       useEasyForm({ initialForm: mockArray }),

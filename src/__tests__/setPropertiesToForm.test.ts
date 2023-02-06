@@ -184,4 +184,29 @@ describe('setPropertiesToForm()', () => {
     ];
     expect(setPropertiesToForm(mockArray)).toEqual(expectedData);
   });
+
+  it('should return array with additional data 7', () => {
+    const mockArray = [
+      {
+        name: 'FN',
+        value: 'John',
+        isValidField: false,
+      },
+    ];
+
+    const expectedData = [
+      {
+        name: 'FN',
+        value: 'John',
+        required: false,
+        onChangeValidate: false,
+        options: {},
+        validate: {},
+        error: '',
+        isValidField: false,
+        touched: false,
+      },
+    ];
+    expect(setPropertiesToForm(mockArray)).toEqual(expectedData);
+  });
 });

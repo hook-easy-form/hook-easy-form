@@ -43,4 +43,34 @@ describe('setDefaultValues()', () => {
     };
     expect(setDefaultValues(mockArray, mockObject)).toEqual(mockArray);
   });
+
+  it('partial update for fields inside form array', () => {
+    const updateObject = {
+      FN: 'John',
+    };
+
+    const initialForm = [
+      {
+        name: 'FN',
+        value: '',
+      },
+      {
+        name: 'LN',
+        value: '12345',
+      },
+    ];
+
+    const data = setDefaultValues(initialForm, updateObject);
+
+    expect(data).toEqual([
+      {
+        name: 'FN',
+        value: 'John',
+      },
+      {
+        name: 'LN',
+        value: '12345',
+      },
+    ]);
+  });
 });
