@@ -306,6 +306,7 @@ const FormComponent = () => {
   resetEvent // reset form manually
   updateDefaultValues // dynamically set default values
   updateFormArray // dynamically set form array
+  multipleFieldUpdate // update multiple values func 
   submitEvent // takes a callback as a param, return to callback formatted object
   setErrorManually // takes a name and error string as a params, and immediately set error for current name
   setValueManually // takes a name and value as a params, and immediately set value for current name
