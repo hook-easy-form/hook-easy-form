@@ -197,7 +197,7 @@ export const useEasyForm = <T extends Record<string, unknown>>({
       await callback(data, e);
       if (resetAfterSubmit) resetEvent();
     },
-    [resetEvent, resetAfterSubmit],
+    [resetEvent, resetAfterSubmit, formArray],
   );
 
   const getProps: GetProps<T, keyof T> = useCallback(
