@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 
 import { useEasyForm } from '../lib/useEasyForm';
+import { useMemo } from 'react';
 
 const mockArray = [
   {
@@ -30,21 +31,14 @@ const expectedMockObject = {
 describe('useEasyForm()', () => {
   it('render simple form', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
     expect(result.current.formArray).toEqual(expectedMockArray);
     expect(result.current.formObject).toEqual(expectedMockObject);
   });
 
-  it('render with empty object', () => {
-    const { result } = renderHook(() => useEasyForm({} as any));
-
-    expect(result.current.formArray).toEqual([]);
-    expect(result.current.formObject).toEqual({});
-  });
-
   it('render with empty form data', () => {
-    const { result } = renderHook(() => useEasyForm({ initialForm: [] }));
+    const { result } = renderHook(() => useEasyForm([]));
 
     expect(result.current.formArray).toEqual([]);
     expect(result.current.formObject).toEqual({});
@@ -52,7 +46,7 @@ describe('useEasyForm()', () => {
 
   it('submitEvent simple case', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray, resetAfterSubmit: true }),
+      useEasyForm(mockArray, undefined, { resetAfterSubmit: true }),
     );
 
     const event = {
@@ -81,7 +75,7 @@ describe('useEasyForm()', () => {
       validate: rules,
     }));
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm, resetAfterSubmit: true }),
+      useEasyForm(initialForm, undefined, { resetAfterSubmit: true }),
     );
 
     const f = jest.fn(() => {});
@@ -126,8 +120,20 @@ describe('useEasyForm()', () => {
   });
 
   it('render with default props', () => {
+    const { result: memoResult } = renderHook(() => useMemo(() => ({ FN: 'Tony' }), []))
+
     const { result } = renderHook(() =>
+<<<<<<< Updated upstream
       useEasyForm({ initialForm: mockArray, defaultValues: { FN: 'Tony' } }),
+=======
+      useEasyForm([
+        {
+          name: 'FN',
+          value: 'John',
+        },
+      ],
+      memoResult.current),
+>>>>>>> Stashed changes
     );
 
     const expectedArray = expectedMockArray.map((e) => ({
@@ -142,7 +148,7 @@ describe('useEasyForm()', () => {
 
   it('reset func simple case', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -154,7 +160,7 @@ describe('useEasyForm()', () => {
   });
 
   it('reset func with wrong form data', () => {
-    const { result } = renderHook(() => useEasyForm({ initialForm: [] }));
+    const { result } = renderHook(() => useEasyForm([]));
 
     act(() => {
       result.current.resetEvent();
@@ -166,7 +172,7 @@ describe('useEasyForm()', () => {
 
   it('updateEvent func simple case', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -200,7 +206,7 @@ describe('useEasyForm()', () => {
 
   it('updateEvent func simple case for type = checkbox', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -234,9 +240,7 @@ describe('useEasyForm()', () => {
 
   it('updateEvent func simple case with validation', () => {
     const { result } = renderHook(() =>
-      useEasyForm({
-        initialForm: mockArray.map((e) => ({ ...e, onChangeValidate: true })),
-      }),
+      useEasyForm(mockArray.map((e) => ({ ...e, onChangeValidate: true }))),
     );
 
     act(() => {
@@ -272,7 +276,7 @@ describe('useEasyForm()', () => {
 
   it('updateEvent func with incorrect name', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -292,7 +296,7 @@ describe('useEasyForm()', () => {
 
   it('updateEvent func without params', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -305,7 +309,7 @@ describe('useEasyForm()', () => {
 
   it('setErrorManually func simple case', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -334,7 +338,7 @@ describe('useEasyForm()', () => {
 
   it('setErrorManually func without params', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -347,7 +351,7 @@ describe('useEasyForm()', () => {
 
   it('setValueManually func simple case', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -374,9 +378,7 @@ describe('useEasyForm()', () => {
 
   it('setValueManually func simple case with validation', () => {
     const { result } = renderHook(() =>
-      useEasyForm({
-        initialForm: mockArray.map((e) => ({ ...e, onChangeValidate: true })),
-      }),
+      useEasyForm(mockArray.map((e) => ({ ...e, onChangeValidate: true }))),
     );
 
     act(() => {
@@ -405,7 +407,7 @@ describe('useEasyForm()', () => {
 
   it('setValueManually func without params', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -418,18 +420,16 @@ describe('useEasyForm()', () => {
 
   it('multipleFieldUpdate func simple case', () => {
     const { result } = renderHook(() =>
-      useEasyForm({
-        initialForm: [
-          {
-            name: 'name1',
-            value: '',
-          },
-          {
-            name: 'name2',
-            value: '',
-          },
-        ],
-      }),
+      useEasyForm([
+        {
+          name: 'name1',
+          value: '',
+        },
+        {
+          name: 'name2',
+          value: '',
+        },
+      ]),
     );
 
     act(() => {
@@ -448,7 +448,7 @@ describe('useEasyForm()', () => {
 
   it('valid property should be true', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     expect(result.current.valid).toEqual(true);
@@ -456,7 +456,7 @@ describe('useEasyForm()', () => {
 
   it('pristine property should be true', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     expect(result.current.pristine).toEqual(true);
@@ -464,7 +464,7 @@ describe('useEasyForm()', () => {
 
   it('pristine property should be false', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -476,7 +476,7 @@ describe('useEasyForm()', () => {
 
   it('updateDefaultValues function', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     const df = { FN: 'Tony' };
@@ -500,7 +500,7 @@ describe('useEasyForm()', () => {
 
   it('updateDefaultValues function with incorrect data passed', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -513,7 +513,7 @@ describe('useEasyForm()', () => {
 
   it('updateFormArray function', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     const newArray = [
@@ -542,7 +542,7 @@ describe('useEasyForm()', () => {
 
   it('updateFormArray function with incorrect data passed', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -555,7 +555,7 @@ describe('useEasyForm()', () => {
 
   it('runValidate function with incorrect data passed', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -568,7 +568,7 @@ describe('useEasyForm()', () => {
 
   it('runValidate function with correct field passed', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -595,7 +595,7 @@ describe('useEasyForm()', () => {
 
   it('runValidate function with incorrect field passed', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -608,7 +608,7 @@ describe('useEasyForm()', () => {
 
   it('getProps function with incorrect name passed', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -619,7 +619,7 @@ describe('useEasyForm()', () => {
 
   it('getProps function with correct name passed', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -636,7 +636,7 @@ describe('useEasyForm()', () => {
 
   it('getProps function with correct name passed and some extra props', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {
@@ -654,7 +654,7 @@ describe('useEasyForm()', () => {
 
   it('getProps function with correct name passed and only valid Dom elements flag', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray }),
+      useEasyForm(mockArray),
     );
 
     act(() => {

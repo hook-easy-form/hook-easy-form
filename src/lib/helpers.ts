@@ -71,7 +71,14 @@ export const checkFormValid: CheckFormValid = (f) => {
   }, true as boolean);
 };
 
+<<<<<<< Updated upstream
 export const setDefaultValues: SetDefaultValues = (array, object) => {
+=======
+export const setDefaultValues = <T>(
+  array: FormArray<T>,
+  object?: Partial<T>,
+): FormArray<T> => {
+>>>>>>> Stashed changes
   if (!array || !Array.isArray(array) || array.length === 0) {
     return [];
   }
