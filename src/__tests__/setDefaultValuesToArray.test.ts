@@ -1,7 +1,8 @@
-import { setDefaultValues } from '../lib/helpers';
+import { multiUpdate } from '../lib/helpers';
+import { FormArray } from '../lib/types';
 
-describe('setDefaultValues()', () => {
-  const mockArray = [
+describe('multiUpdate()', () => {
+  const mockArray: FormArray<{ FN: string; LN: string }> = [
     {
       name: 'FN',
       value: '',
@@ -28,20 +29,20 @@ describe('setDefaultValues()', () => {
         value: 'Dou',
       },
     ];
-    expect(setDefaultValues(mockArray, mockObject)).toEqual(outputArray);
+    expect(multiUpdate(mockArray, mockObject)).toEqual(outputArray);
   });
 
   it('should return array without default values', () => {
-    expect(setDefaultValues([])).toEqual([]);
-    expect(setDefaultValues(mockArray)).toEqual(mockArray);
+    expect(multiUpdate([])).toEqual([]);
+    expect(multiUpdate(mockArray)).toEqual(mockArray);
   });
 
   it('should return array default array', () => {
     const mockObject = {
       FN23: 'John',
       LN123: 'Dou',
-    };
-    expect(setDefaultValues(mockArray, mockObject)).toEqual(mockArray);
+    } as any;
+    expect(multiUpdate(mockArray, mockObject)).toEqual(mockArray);
   });
 
   it('partial update for fields inside form array', () => {
@@ -49,18 +50,7 @@ describe('setDefaultValues()', () => {
       FN: 'John',
     };
 
-    const initialForm = [
-      {
-        name: 'FN',
-        value: '',
-      },
-      {
-        name: 'LN',
-        value: '12345',
-      },
-    ];
-
-    const data = setDefaultValues(initialForm, updateObject);
+    const data = multiUpdate(mockArray, updateObject);
 
     expect(data).toEqual([
       {
@@ -69,7 +59,7 @@ describe('setDefaultValues()', () => {
       },
       {
         name: 'LN',
-        value: '12345',
+        value: '',
       },
     ]);
   });

@@ -69,6 +69,20 @@ describe('useEasyForm()', () => {
     expect(result.current.formObject).toEqual(expectedMockObject);
   });
 
+  it('submitEvent without event and resetAfterSubmit = false', () => {
+    const { result } = renderHook(() =>
+      useEasyForm({ initialForm: mockArray, resetAfterSubmit: false }),
+    );
+
+    const cb = () => {};
+    act(() => {
+      (result.current.submitEvent(cb) as any)(undefined as any);
+    });
+
+    expect(result.current.formArray).toEqual(expectedMockArray);
+    expect(result.current.formObject).toEqual(expectedMockObject);
+  });
+
   it('submitEvent simple case with error', () => {
     const rules = {
       required: (v: any) => (v.trim() === '' ? 'Required' : ''),
@@ -123,21 +137,6 @@ describe('useEasyForm()', () => {
 
     expect(result.current.formArray).toEqual(array);
     expect(result.current.formObject).toEqual(object);
-  });
-
-  it('render with default props', () => {
-    const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray, defaultValues: { FN: 'Tony' } }),
-    );
-
-    const expectedArray = expectedMockArray.map((e) => ({
-      ...e,
-      value: 'Tony',
-    }));
-    const expectedObject = { FN: { ...expectedMockObject.FN, value: 'Tony' } };
-
-    expect(result.current.formArray).toEqual(expectedArray);
-    expect(result.current.formObject).toEqual(expectedObject);
   });
 
   it('reset func simple case', () => {
@@ -338,7 +337,7 @@ describe('useEasyForm()', () => {
     );
 
     act(() => {
-      result.current.setErrorManually();
+      result.current.setErrorManually('');
     });
 
     expect(result.current.formArray).toEqual(expectedMockArray);
@@ -409,7 +408,7 @@ describe('useEasyForm()', () => {
     );
 
     act(() => {
-      result.current.setValueManually();
+      result.current.setValueManually('');
     });
 
     expect(result.current.formArray).toEqual(expectedMockArray);
@@ -504,7 +503,7 @@ describe('useEasyForm()', () => {
     );
 
     act(() => {
-      result.current.updateDefaultValues({});
+      result.current.updateDefaultValues(undefined as any);
     });
 
     expect(result.current.formArray).toEqual(expectedMockArray);

@@ -1,7 +1,7 @@
 export type RULES = { [key in string]?: (v: any, p?: OTHER_VALUES) => string };
 export type OTHER_VALUES = Record<string, any>;
-export type FormItem = {
-  name: string;
+export type FormItem<T> = {
+  name: keyof T;
   value?: any;
   required?: boolean;
   onChangeValidate?: boolean;
@@ -11,81 +11,56 @@ export type FormItem = {
   validate?: RULES;
   isValidField?: boolean;
 };
-export type DefaultValues = Record<string, any>;
-
-export type FormArray = FormItem[];
-export type FormObject<T extends string> = Record<T, FormItem>;
+export type FormArray<T> = FormItem<T>[];
+export type FormObject<T> = { [Property in keyof T]: FormItem<T> };
 
 export type ResetEvent = () => void;
-export type RunValidate = (name: string) => void;
+export type RunValidate<K> = (name: K) => void;
 export type UpdateEvent = (e?: any) => void;
-export type SetErrorManually = (name?: string, error?: string) => void;
-export type SetValueManually = (name?: string, value?: any) => void;
-export type MultipleFieldUpdate = (v: Record<string, any>) => void;
-export type UpdateDefaultValues = (v: DefaultValues) => void;
-export type UpdateFormArray = (array: FormArray) => void;
-export type CheckRequiredProperty = (array: FormArray) => boolean;
-export type GetProps = (
-  name: string,
+export type SetErrorManually<K> = (name: K, error?: string) => void;
+export type SetValueManually<K> = (name: K, value?: any) => void;
+export type MultipleFieldUpdate<T> = (v: Partial<T>) => void;
+export type UpdateDefaultValues<T> = (v: Partial<T>) => void;
+export type UpdateFormArray<T> = (array: FormArray<T>) => void;
+export type GetProps<T, K> = (
+  name: K,
   rest?: Record<string, any>,
   onlyValidDomAttr?: boolean,
-) => Partial<FormItem> & { onChange: UpdateEvent } & Record<string, any>;
-export type CompareValues = (
-  initForm: FormArray,
-  currentForm: FormArray,
-) => boolean;
-export type GetOtherValues = (
-  array: FormArray,
-  exclude?: string,
-) => OTHER_VALUES;
+) => Partial<FormItem<T>> & { onChange: UpdateEvent } & Record<string, any>;
 export type Validator = (
   value: any,
   otherValues: OTHER_VALUES,
   rules?: RULES,
 ) => string;
-export type HasAnyErrorsInForm = (
-  array: FormArray,
-  otherValues: OTHER_VALUES,
-) => boolean;
-export type CheckFormValid = (array: FormArray) => boolean;
-export type SetDefaultValues = (
-  array: FormArray,
-  object?: DefaultValues,
-) => FormArray;
-export type SetPropertiesToForm = (array: FormArray) => FormArray;
 
-export type EasyFormTypes = {
-  initialForm: FormItem[];
+export type EasyFormTypes<T> = {
+  initialForm: FormArray<T>;
   resetAfterSubmit?: boolean;
-  defaultValues?: DefaultValues;
 };
 
-/**
- * return type is React.FormEvent<HTMLFormElement> | React.MouseEventHandler<HTMLButtonElement>
- */
 export type OnSubmit<T> = (
   data: (data: T, event?: React.BaseSyntheticEvent) => void | Promise<void>,
 ) => (e: any) => void;
 
-type HookTypes<U extends string> = {
-  formArray: FormItem[];
-  formObject: FormObject<U>;
+type HookTypes<T> = {
+  formArray: FormArray<T>;
+  formObject: FormObject<T>;
   pristine: boolean;
   valid: boolean;
   disabled: boolean;
 };
 
-type HookMethods<T> = {
+type HookMethods<T, K> = {
   resetEvent: ResetEvent;
   updateEvent: UpdateEvent;
-  setErrorManually: SetErrorManually;
-  setValueManually: SetValueManually;
-  multipleFieldUpdate: MultipleFieldUpdate;
-  updateDefaultValues: UpdateDefaultValues;
-  updateFormArray: UpdateFormArray;
-  runValidate: RunValidate;
+  setErrorManually: SetErrorManually<K>;
+  setValueManually: SetValueManually<K>;
+  multipleFieldUpdate: MultipleFieldUpdate<T>;
+  updateDefaultValues: UpdateDefaultValues<T>;
+  updateFormArray: UpdateFormArray<T>;
+  runValidate: RunValidate<K>;
   submitEvent: OnSubmit<T>;
-  getProps: GetProps;
+  getProps: GetProps<T, K>;
 };
 
-export type Hook<T, U extends string> = HookMethods<T> & HookTypes<U>;
+export type Hook<T> = HookMethods<T, keyof T> & HookTypes<T>;

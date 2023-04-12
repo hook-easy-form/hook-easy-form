@@ -7,7 +7,7 @@ import {
   getOtherValues,
   hasAnyErrorsInForm,
   checkFormValid,
-  setDefaultValues,
+  multiUpdate,
   transformArrayToObject,
   validator,
   setPropertiesToForm,
@@ -29,36 +29,28 @@ import {
   MultipleFieldUpdate,
 } from './types';
 
-export const useEasyForm = <
-  T extends Record<string, unknown>,
-  U extends string
->({
-  defaultValues,
+export const useEasyForm = <T extends Record<string, unknown>>({
   initialForm,
   resetAfterSubmit,
-}: EasyFormTypes): Hook<T, U> => {
-  const df = useRef(defaultValues || {});
-  const updatedInitialForm = useRef<FormArray>(
+}: EasyFormTypes<T>): Hook<T> => {
+  const updatedInitialForm = useRef<FormArray<T>>(
     setPropertiesToForm(initialForm),
   );
 
-  const [formArray, setFormArray] = useState<FormArray>(
-    setDefaultValues(updatedInitialForm.current, defaultValues),
+  const [formArray, setFormArray] = useState<FormArray<T>>(
+    updatedInitialForm.current,
   );
 
-  const formObject = useMemo(() => transformArrayToObject<U>(formArray), [
+  const formObject = useMemo(() => transformArrayToObject<T>(formArray), [
     formArray,
   ]);
 
-  const disabled = useMemo<boolean>(() => checkRequiredProperty(formArray), [
+  const disabled = useMemo<boolean>(() => checkRequiredProperty<T>(formArray), [
     formArray,
   ]);
 
   const pristine = useMemo<boolean>(() => {
-    return compareValues(
-      setDefaultValues(updatedInitialForm.current, df.current),
-      formArray,
-    );
+    return compareValues(updatedInitialForm.current, formArray);
   }, [formArray]);
 
   const valid = useMemo<boolean>(
@@ -68,35 +60,41 @@ export const useEasyForm = <
     [formArray],
   );
 
-  const resetEvent: ResetEvent = () => {
-    setFormArray(setDefaultValues(updatedInitialForm.current, df.current));
-  };
+  const resetEvent: ResetEvent = useCallback(() => {
+    setFormArray(updatedInitialForm.current);
+  }, []);
 
-  const updateDefaultValues: UpdateDefaultValues = (v) => {
-    if (!v || Object.keys(v).length === 0) return;
-    df.current = v;
-    setFormArray(setDefaultValues(updatedInitialForm.current, v));
-  };
+  const multipleFieldUpdate: MultipleFieldUpdate<T> = useCallback((fields) => {
+    setFormArray((ps) => multiUpdate(ps, fields));
+  }, []);
 
-  const multipleFieldUpdate: MultipleFieldUpdate = (fields) => {
-    setFormArray((ps) => setDefaultValues(ps, fields));
-  };
+  const updateDefaultValues: UpdateDefaultValues<T> = useCallback(
+    (v) => {
+      if (!v) resetEvent();
+      else multipleFieldUpdate(v);
+    },
+    [multipleFieldUpdate, resetEvent],
+  );
 
-  const updateFormArray: UpdateFormArray = (array) => {
+  /**
+   * please do not use that function
+   * will be removed in future
+   */
+  const updateFormArray: UpdateFormArray<T> = useCallback((array) => {
     if (!array || !Array.isArray(array)) return;
 
     const newInitialForm = setPropertiesToForm(array);
     updatedInitialForm.current = newInitialForm;
     setFormArray(newInitialForm);
-  };
+  }, []);
 
-  const runValidate: RunValidate = (name) => {
+  const runValidate: RunValidate<keyof T> = useCallback((name) => {
     if (!name) return;
 
     setFormArray((ps) =>
       ps.map((el) => {
         if (el.name === name) {
-          const otherValues = getOtherValues(ps, el.name);
+          const otherValues = getOtherValues<T>(ps, el.name);
           const error = validator(el.value, otherValues, el.validate);
           const isValidField = !!(!error && el.touched);
 
@@ -105,9 +103,9 @@ export const useEasyForm = <
         return el;
       }),
     );
-  };
+  }, []);
 
-  const updateEvent: UpdateEvent = (e) => {
+  const updateEvent: UpdateEvent = useCallback((e) => {
     if (!e || !e.target) return;
     const { value, type, checked, name } = e.target;
     const v = type === 'checkbox' ? checked : value;
@@ -129,109 +127,120 @@ export const useEasyForm = <
         return { ...el, error, isValidField };
       });
     });
-  };
+  }, []);
 
-  const setErrorManually: SetErrorManually = (name, error) => {
-    setFormArray((ps) =>
-      ps.map((el) =>
-        el.name === name
-          ? { ...el, touched: true, error, isValidField: false }
-          : el,
-      ),
-    );
-  };
-
-  const setValueManually: SetValueManually = (name, value) => {
-    setFormArray((ps) => {
-      const newForm = ps.map((el) => {
-        if (el.name === name) {
-          return { ...el, value, touched: true };
-        }
-        return el;
-      });
-
-      return newForm.map((el) => {
-        if (!el.onChangeValidate) return { ...el, error: '' };
-
-        const otherValues = getOtherValues(newForm, el.name);
-        const error = validator(el.value, otherValues, el.validate);
-        const isValidField = !!(!error && el.touched);
-        return { ...el, error, isValidField };
-      });
-    });
-  };
-
-  // eslint-disable-next-line consistent-return
-  const submitEvent: OnSubmit<T> = (callback) => async (e) => {
-    if (e) {
-      e.preventDefault();
-      e.persist();
-    }
-
-    const otherValues = getOtherValues(formArray);
-    const hasAnyErrorInForm = hasAnyErrorsInForm(formArray, otherValues);
-    if (hasAnyErrorInForm) {
-      setFormArray(
-        formArray.map((el) => {
-          const error =
-            el.error || validator(el.value, otherValues, el.validate);
-          const isValidField = !error;
-          return {
-            ...el,
-            touched: true,
-            error: el.error
-              ? el.error
-              : validator(el.value, otherValues, el.validate),
-            isValidField,
-          };
-        }),
+  const setErrorManually: SetErrorManually<keyof T> = useCallback(
+    (name, error) => {
+      setFormArray((ps) =>
+        ps.map((el) =>
+          el.name === name
+            ? { ...el, touched: true, error, isValidField: false }
+            : el,
+        ),
       );
-      return;
-    }
+    },
+    [],
+  );
 
-    const data = getOutputObject<T>(formArray);
-    await callback(data, e);
-    if (resetAfterSubmit) resetEvent();
-  };
+  const setValueManually: SetValueManually<keyof T> = useCallback(
+    (name, value) => {
+      setFormArray((ps) => {
+        const newForm = ps.map((el) => {
+          if (el.name === name) {
+            return { ...el, value, touched: true };
+          }
+          return el;
+        });
 
-  const getProps: GetProps = (n, rest, onlyValidDomAttr = false) => {
-    const element = formArray.find((e) => e.name === n);
-    if (!element) return { onChange: updateEvent, ...rest };
+        return newForm.map((el) => {
+          if (!el.onChangeValidate) return { ...el, error: '' };
 
-    const { name, value, touched, error } = element;
+          const otherValues = getOtherValues(newForm, el.name);
+          const error = validator(el.value, otherValues, el.validate);
+          const isValidField = !!(!error && el.touched);
+          return { ...el, error, isValidField };
+        });
+      });
+    },
+    [],
+  );
 
-    if (onlyValidDomAttr) {
+  const submitEvent: OnSubmit<T> = useCallback(
+    (callback) => async (e) => {
+      if (e) {
+        e.preventDefault();
+        e.persist();
+      }
+
+      const otherValues = getOtherValues(formArray);
+      const hasAnyErrorInForm = hasAnyErrorsInForm(formArray, otherValues);
+      if (hasAnyErrorInForm) {
+        setFormArray(
+          formArray.map((el) => {
+            const error =
+              el.error || validator(el.value, otherValues, el.validate);
+            const isValidField = !error;
+            return {
+              ...el,
+              touched: true,
+              error: el.error
+                ? el.error
+                : validator(el.value, otherValues, el.validate),
+              isValidField,
+            };
+          }),
+        );
+        return;
+      }
+
+      const data = getOutputObject<T>(formArray);
+      await callback(data, e);
+      if (resetAfterSubmit) resetEvent();
+    },
+    [resetEvent, resetAfterSubmit, formArray],
+  );
+
+  const getProps: GetProps<T, keyof T> = useCallback(
+    (n, rest, onlyValidDomAttr = false) => {
+      const element = formArray.find((e) => e.name === n);
+      if (!element) return { onChange: updateEvent, ...rest };
+
+      const { name, value, touched, error } = element;
+
+      if (onlyValidDomAttr) {
+        return {
+          name,
+          value,
+          onChange: updateEvent,
+          ...rest,
+        };
+      }
+
       return {
         name,
         value,
         onChange: updateEvent,
+        touched,
+        error,
         ...rest,
       };
-    }
-
-    return {
-      name,
-      value,
-      onChange: updateEvent,
-      touched,
-      error,
-      ...rest,
-    };
-  };
+    },
+    [updateEvent, formArray],
+  );
 
   return {
     formArray,
     formObject,
-    resetEvent: useCallback(resetEvent, []),
-    updateEvent: useCallback(updateEvent, []),
-    setErrorManually: useCallback(setErrorManually, []),
-    setValueManually: useCallback(setValueManually, []),
-    multipleFieldUpdate: useCallback(multipleFieldUpdate, []),
-    updateDefaultValues: useCallback(updateDefaultValues, []),
-    updateFormArray: useCallback(updateFormArray, []),
-    runValidate: useCallback(runValidate, []),
-    submitEvent,
-    getProps: useCallback(getProps, [formArray]),
+    resetEvent: resetEvent,
+    updateEvent: updateEvent,
+    setErrorManually: setErrorManually,
+    setValueManually: setValueManually,
+    multipleFieldUpdate: multipleFieldUpdate,
+    updateDefaultValues: updateDefaultValues,
+    updateFormArray: updateFormArray,
+    runValidate: runValidate,
+    submitEvent: submitEvent,
+    getProps: getProps,
     pristine,
     valid,
     disabled,
