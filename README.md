@@ -198,21 +198,16 @@ const FormComponent = () => {
 
 
   ```jsx
-  import { FN } from 'react';
   import easyHook from 'hook-easy-form';
-
 
   type FormData = {
     firstName: string;
     lastName: string;
   };
 
-  type Objects = 'firstName' | 'lastName';
-
-  const Component: FN = () => {
-
+  const Component = () => {
     const { formObject, submitEvent, disabled, valid, runValidate, getProps } =
-      useEasyForm<FormData, Objects>({
+      useEasyForm<FormData>({
         initialForm: [
           {
             name: 'firstName',
@@ -244,11 +239,11 @@ const FormComponent = () => {
       <div>
         <form onSubmit={onSubmit}>
           <input
-            {...getProps(firstName.name, { type: firstName.options?.type })}
+            {...getProps('firstName', firstName.options)}
             onBlur={onBlur}
           />
           <input
-            {...getProps(lastName.name, { type: lastName.options?.type })}
+            {...getProps('lastName', lastName.options)}
             onBlur={onBlur}
           />
 
@@ -273,7 +268,7 @@ const FormComponent = () => {
 | Name | Type | Default | Required | Description |
 | --- | --- | --- | --- | --- |
 | name | `string` | `-` | true | Name of input, unique identifier of each field |
-| value | `any` | undefined | false | Value for this object |
+| value | `any` | undefined | false | Value for this object (filed) |
 | error | `string` | ` ` | false | String error |
 | touched | `boolean` | false | false | The value indicates whether it has been changed before |
 | isValidField | `boolean` | true | false | a boolean value which mean the field it was touched and doesn't have any validation errors |
@@ -288,13 +283,6 @@ const FormComponent = () => {
 | Name | Type | Default | Required | Description |
 | --- | --- | --- | --- | --- |
 | resetAfterSubmit | `boolean` | false | false | Property for reset form after success submit |
-
-
-* __defaultValues__ 
-
-| Name | Type | Default | Required | Description |
-| --- | --- | --- | --- | --- |
-| defaultValues | `object` | false | false | The values with which to initialize your form |
 
 
 ## Hook actions API

@@ -11,8 +11,6 @@ export type FormItem<T> = {
   validate?: RULES;
   isValidField?: boolean;
 };
-export type DefaultValues<T> = Record<keyof T, any>;
-
 export type FormArray<T> = FormItem<T>[];
 export type FormObject<T> = { [Property in keyof T]: FormItem<T> };
 
@@ -21,10 +19,8 @@ export type RunValidate<K> = (name: K) => void;
 export type UpdateEvent = (e?: any) => void;
 export type SetErrorManually<K> = (name: K, error?: string) => void;
 export type SetValueManually<K> = (name: K, value?: any) => void;
-export type MultipleFieldUpdate<T> = (
-  v: { [Property in keyof Partial<T>]: any },
-) => void;
-export type UpdateDefaultValues<T> = (v: DefaultValues<Partial<T>>) => void;
+export type MultipleFieldUpdate<T> = (v: Partial<T>) => void;
+export type UpdateDefaultValues<T> = (v: Partial<T>) => void;
 export type UpdateFormArray<T> = (array: FormArray<T>) => void;
 export type GetProps<T, K> = (
   name: K,
@@ -40,7 +36,6 @@ export type Validator = (
 export type EasyFormTypes<T> = {
   initialForm: FormArray<T>;
   resetAfterSubmit?: boolean;
-  defaultValues?: DefaultValues<T>;
 };
 
 export type OnSubmit<T> = (

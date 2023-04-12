@@ -69,9 +69,9 @@ export const checkFormValid = <T>(f: FormArray<T>): boolean => {
   }, true as boolean);
 };
 
-export const setDefaultValues = <T>(
+export const multiUpdate = <T>(
   array: FormArray<T>,
-  object?: Partial<Partial<T>>,
+  object?: Partial<T>,
 ): FormArray<T> => {
   if (!array || !Array.isArray(array) || array.length === 0) {
     return [];
