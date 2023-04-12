@@ -1,7 +1,8 @@
 import { setDefaultValues } from '../lib/helpers';
+import { FormArray } from '../lib/types';
 
 describe('setDefaultValues()', () => {
-  const mockArray = [
+  const mockArray: FormArray<{ FN: string; LN: string }> = [
     {
       name: 'FN',
       value: '',
@@ -40,7 +41,7 @@ describe('setDefaultValues()', () => {
     const mockObject = {
       FN23: 'John',
       LN123: 'Dou',
-    };
+    } as any;
     expect(setDefaultValues(mockArray, mockObject)).toEqual(mockArray);
   });
 
@@ -49,18 +50,7 @@ describe('setDefaultValues()', () => {
       FN: 'John',
     };
 
-    const initialForm = [
-      {
-        name: 'FN',
-        value: '',
-      },
-      {
-        name: 'LN',
-        value: '12345',
-      },
-    ];
-
-    const data = setDefaultValues(initialForm, updateObject);
+    const data = setDefaultValues(mockArray, updateObject);
 
     expect(data).toEqual([
       {
@@ -69,7 +59,7 @@ describe('setDefaultValues()', () => {
       },
       {
         name: 'LN',
-        value: '12345',
+        value: '',
       },
     ]);
   });

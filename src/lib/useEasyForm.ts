@@ -27,30 +27,29 @@ import {
   ResetEvent,
   GetProps,
   MultipleFieldUpdate,
+  DefaultValues,
 } from './types';
 
-export const useEasyForm = <
-  T extends Record<string, unknown>,
-  U extends string
->({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const useEasyForm = <T extends Record<string, unknown>, U = unknown>({
   defaultValues,
   initialForm,
   resetAfterSubmit,
-}: EasyFormTypes): Hook<T, U> => {
-  const df = useRef(defaultValues || {});
-  const updatedInitialForm = useRef<FormArray>(
+}: EasyFormTypes<T>): Hook<T> => {
+  const df = useRef<DefaultValues<T> | undefined>(defaultValues);
+  const updatedInitialForm = useRef<FormArray<T>>(
     setPropertiesToForm(initialForm),
   );
 
-  const [formArray, setFormArray] = useState<FormArray>(
+  const [formArray, setFormArray] = useState<FormArray<T>>(
     setDefaultValues(updatedInitialForm.current, defaultValues),
   );
 
-  const formObject = useMemo(() => transformArrayToObject<U>(formArray), [
+  const formObject = useMemo(() => transformArrayToObject<T>(formArray), [
     formArray,
   ]);
 
-  const disabled = useMemo<boolean>(() => checkRequiredProperty(formArray), [
+  const disabled = useMemo<boolean>(() => checkRequiredProperty<T>(formArray), [
     formArray,
   ]);
 
@@ -72,17 +71,17 @@ export const useEasyForm = <
     setFormArray(setDefaultValues(updatedInitialForm.current, df.current));
   };
 
-  const updateDefaultValues: UpdateDefaultValues = (v) => {
+  const updateDefaultValues: UpdateDefaultValues<T> = (v) => {
     if (!v || Object.keys(v).length === 0) return;
     df.current = v;
     setFormArray(setDefaultValues(updatedInitialForm.current, v));
   };
 
-  const multipleFieldUpdate: MultipleFieldUpdate = (fields) => {
+  const multipleFieldUpdate: MultipleFieldUpdate<T> = (fields) => {
     setFormArray((ps) => setDefaultValues(ps, fields));
   };
 
-  const updateFormArray: UpdateFormArray = (array) => {
+  const updateFormArray: UpdateFormArray<T> = (array) => {
     if (!array || !Array.isArray(array)) return;
 
     const newInitialForm = setPropertiesToForm(array);
@@ -90,13 +89,13 @@ export const useEasyForm = <
     setFormArray(newInitialForm);
   };
 
-  const runValidate: RunValidate = (name) => {
+  const runValidate: RunValidate<keyof T> = (name) => {
     if (!name) return;
 
     setFormArray((ps) =>
       ps.map((el) => {
         if (el.name === name) {
-          const otherValues = getOtherValues(ps, el.name);
+          const otherValues = getOtherValues<T>(ps, el.name);
           const error = validator(el.value, otherValues, el.validate);
           const isValidField = !!(!error && el.touched);
 
@@ -131,7 +130,7 @@ export const useEasyForm = <
     });
   };
 
-  const setErrorManually: SetErrorManually = (name, error) => {
+  const setErrorManually: SetErrorManually<keyof T> = (name, error) => {
     setFormArray((ps) =>
       ps.map((el) =>
         el.name === name
@@ -141,7 +140,7 @@ export const useEasyForm = <
     );
   };
 
-  const setValueManually: SetValueManually = (name, value) => {
+  const setValueManually: SetValueManually<keyof T> = (name, value) => {
     setFormArray((ps) => {
       const newForm = ps.map((el) => {
         if (el.name === name) {
@@ -194,7 +193,11 @@ export const useEasyForm = <
     if (resetAfterSubmit) resetEvent();
   };
 
-  const getProps: GetProps = (n, rest, onlyValidDomAttr = false) => {
+  const getProps: GetProps<T, keyof T> = (
+    n,
+    rest,
+    onlyValidDomAttr = false,
+  ) => {
     const element = formArray.find((e) => e.name === n);
     if (!element) return { onChange: updateEvent, ...rest };
 

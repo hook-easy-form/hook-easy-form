@@ -127,7 +127,15 @@ describe('useEasyForm()', () => {
 
   it('render with default props', () => {
     const { result } = renderHook(() =>
-      useEasyForm({ initialForm: mockArray, defaultValues: { FN: 'Tony' } }),
+      useEasyForm({
+        initialForm: [
+          {
+            name: 'FN',
+            value: 'John',
+          },
+        ],
+        defaultValues: { FN: 'Tony' },
+      }),
     );
 
     const expectedArray = expectedMockArray.map((e) => ({
@@ -338,7 +346,7 @@ describe('useEasyForm()', () => {
     );
 
     act(() => {
-      result.current.setErrorManually();
+      result.current.setErrorManually('');
     });
 
     expect(result.current.formArray).toEqual(expectedMockArray);
@@ -409,7 +417,7 @@ describe('useEasyForm()', () => {
     );
 
     act(() => {
-      result.current.setValueManually();
+      result.current.setValueManually('');
     });
 
     expect(result.current.formArray).toEqual(expectedMockArray);
