@@ -113,7 +113,7 @@ export const useEasyForm = <T extends Record<string, unknown>>({
     setFormArray((ps) => {
       const newForm = ps.map((filed) => {
         if (filed.name === name) {
-          return { ...filed, value: v, touched: true };
+          return { ...filed, value: v, touched: true, error: '' };
         }
         return filed;
       });
