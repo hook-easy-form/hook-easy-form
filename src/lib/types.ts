@@ -57,7 +57,7 @@ type HookMethods<T, K> = {
   setValueManually: SetValueManually<K>;
   multipleFieldUpdate: MultipleFieldUpdate<T>;
   updateDefaultValues: UpdateDefaultValues<T>;
-  updateFormArray: UpdateFormArray<T>;
+  _updateFormArray: UpdateFormArray<T>;
   runValidate: RunValidate<K>;
   submitEvent: OnSubmit<T>;
   getProps: GetProps<T, K>;

@@ -80,7 +80,7 @@ export const useEasyForm = <T extends Record<string, unknown>>({
    * please do not use that function
    * will be removed in future
    */
-  const updateFormArray: UpdateFormArray<T> = useCallback((array) => {
+  const _updateFormArray: UpdateFormArray<T> = useCallback((array) => {
     if (!array || !Array.isArray(array)) return;
 
     const newInitialForm = setPropertiesToForm(array);
@@ -92,15 +92,15 @@ export const useEasyForm = <T extends Record<string, unknown>>({
     if (!name) return;
 
     setFormArray((ps) =>
-      ps.map((el) => {
-        if (el.name === name) {
-          const otherValues = getOtherValues<T>(ps, el.name);
-          const error = validator(el.value, otherValues, el.validate);
-          const isValidField = !!(!error && el.touched);
+      ps.map((filed) => {
+        if (filed.name === name) {
+          const otherValues = getOtherValues<T>(ps, filed.name);
+          const error = validator(filed.value, otherValues, filed.validate);
+          const isValidField = !!(!error && filed.touched);
 
-          return { ...el, error, touched: true, isValidField };
+          return { ...filed, error, touched: true, isValidField };
         }
-        return el;
+        return filed;
       }),
     );
   }, []);
@@ -111,20 +111,20 @@ export const useEasyForm = <T extends Record<string, unknown>>({
     const v = type === 'checkbox' ? checked : value;
 
     setFormArray((ps) => {
-      const newForm = ps.map((el) => {
-        if (el.name === name) {
-          return { ...el, value: v, touched: true };
+      const newForm = ps.map((filed) => {
+        if (filed.name === name) {
+          return { ...filed, value: v, touched: true };
         }
-        return el;
+        return filed;
       });
 
-      return newForm.map((el) => {
-        if (!el.onChangeValidate) return { ...el, error: '' };
+      return newForm.map((filed) => {
+        if (!filed.onChangeValidate) return filed;
 
-        const otherValues = getOtherValues(newForm, el.name);
-        const error = validator(el.value, otherValues, el.validate);
-        const isValidField = !!(!error && el.touched);
-        return { ...el, error, isValidField };
+        const otherValues = getOtherValues(newForm, filed.name);
+        const error = validator(filed.value, otherValues, filed.validate);
+        const isValidField = !!(!error && filed.touched);
+        return { ...filed, error, isValidField };
       });
     });
   }, []);
@@ -132,10 +132,10 @@ export const useEasyForm = <T extends Record<string, unknown>>({
   const setErrorManually: SetErrorManually<keyof T> = useCallback(
     (name, error) => {
       setFormArray((ps) =>
-        ps.map((el) =>
-          el.name === name
-            ? { ...el, touched: true, error, isValidField: false }
-            : el,
+        ps.map((filed) =>
+          filed.name === name
+            ? { ...filed, touched: true, error, isValidField: false }
+            : filed,
         ),
       );
     },
@@ -145,20 +145,20 @@ export const useEasyForm = <T extends Record<string, unknown>>({
   const setValueManually: SetValueManually<keyof T> = useCallback(
     (name, value) => {
       setFormArray((ps) => {
-        const newForm = ps.map((el) => {
-          if (el.name === name) {
-            return { ...el, value, touched: true };
+        const newForm = ps.map((filed) => {
+          if (filed.name === name) {
+            return { ...filed, value, touched: true };
           }
-          return el;
+          return filed;
         });
 
-        return newForm.map((el) => {
-          if (!el.onChangeValidate) return { ...el, error: '' };
+        return newForm.map((filed) => {
+          if (!filed.onChangeValidate) return filed;
 
-          const otherValues = getOtherValues(newForm, el.name);
-          const error = validator(el.value, otherValues, el.validate);
-          const isValidField = !!(!error && el.touched);
-          return { ...el, error, isValidField };
+          const otherValues = getOtherValues(newForm, filed.name);
+          const error = validator(filed.value, otherValues, filed.validate);
+          const isValidField = !!(!error && filed.touched);
+          return { ...filed, error, isValidField };
         });
       });
     },
@@ -176,16 +176,17 @@ export const useEasyForm = <T extends Record<string, unknown>>({
       const hasAnyErrorInForm = hasAnyErrorsInForm(formArray, otherValues);
       if (hasAnyErrorInForm) {
         setFormArray(
-          formArray.map((el) => {
+          formArray.map((filed) => {
             const error =
-              el.error || validator(el.value, otherValues, el.validate);
+              filed.error ||
+              validator(filed.value, otherValues, filed.validate);
             const isValidField = !error;
             return {
-              ...el,
+              ...filed,
               touched: true,
-              error: el.error
-                ? el.error
-                : validator(el.value, otherValues, el.validate),
+              error: filed.error
+                ? filed.error
+                : validator(filed.value, otherValues, filed.validate),
               isValidField,
             };
           }),
@@ -202,7 +203,7 @@ export const useEasyForm = <T extends Record<string, unknown>>({
 
   const getProps: GetProps<T, keyof T> = useCallback(
     (n, rest, onlyValidDomAttr = false) => {
-      const element = formArray.find((e) => e.name === n);
+      const element = formArray.find((filed) => filed.name === n);
       if (!element) return { onChange: updateEvent, ...rest };
 
       const { name, value, touched, error } = element;
@@ -237,7 +238,7 @@ export const useEasyForm = <T extends Record<string, unknown>>({
     setValueManually: setValueManually,
     multipleFieldUpdate: multipleFieldUpdate,
     updateDefaultValues: updateDefaultValues,
-    updateFormArray: updateFormArray,
+    _updateFormArray: _updateFormArray,
     runValidate: runValidate,
     submitEvent: submitEvent,
     getProps: getProps,

@@ -523,7 +523,7 @@ describe('useEasyForm()', () => {
     ];
 
     act(() => {
-      result.current.updateFormArray(newArray);
+      result.current._updateFormArray(newArray);
     });
 
     const array = expectedMockArray.map((e) => ({ ...e, value: 'Tony' }));
@@ -539,13 +539,13 @@ describe('useEasyForm()', () => {
     expect(result.current.formObject).toEqual(object);
   });
 
-  it('updateFormArray function with incorrect data passed', () => {
+  it('_updateFormArray function with incorrect data passed', () => {
     const { result } = renderHook(() =>
       useEasyForm({ initialForm: mockArray }),
     );
 
     act(() => {
-      result.current.updateFormArray({} as any);
+      result.current._updateFormArray({} as any);
     });
 
     expect(result.current.formArray).toEqual(expectedMockArray);
