@@ -76,11 +76,13 @@ export const multiUpdate = <T>(
   if (!array || !Array.isArray(array) || array.length === 0) {
     return [];
   }
-
   if (!object || Object.keys(object).length === 0) return array;
-  return array.map((el) =>
-    object[el.name] ? { ...el, value: object[el.name] } : el,
-  );
+  return array.map((el) => {
+    if (Object.prototype.hasOwnProperty.call(object, el.name)) {
+      return { ...el, value: object[el.name] };
+    }
+    return el;
+  });
 };
 
 export const transformArrayToObject = <T>(a: FormArray<T>): FormObject<T> => {
