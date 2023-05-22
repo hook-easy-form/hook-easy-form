@@ -105,30 +105,6 @@ export const useEasyForm = <T extends Record<string, unknown>>({
     );
   }, []);
 
-  const updateEvent: UpdateEvent = useCallback((e) => {
-    if (!e || !e.target) return;
-    const { value, type, checked, name } = e.target;
-    const v = type === 'checkbox' ? checked : value;
-
-    setFormArray((ps) => {
-      const newForm = ps.map((filed) => {
-        if (filed.name === name) {
-          return { ...filed, value: v, touched: true, error: '' };
-        }
-        return filed;
-      });
-
-      return newForm.map((filed) => {
-        if (!filed.onChangeValidate) return filed;
-
-        const otherValues = getOtherValues(newForm, filed.name);
-        const error = validator(filed.value, otherValues, filed.validate);
-        const isValidField = !!(!error && filed.touched);
-        return { ...filed, error, isValidField };
-      });
-    });
-  }, []);
-
   const setErrorManually: SetErrorManually<keyof T> = useCallback(
     (name, error) => {
       setFormArray((ps) =>
@@ -147,7 +123,7 @@ export const useEasyForm = <T extends Record<string, unknown>>({
       setFormArray((ps) => {
         const newForm = ps.map((filed) => {
           if (filed.name === name) {
-            return { ...filed, value, touched: true };
+            return { ...filed, value, touched: true, error: '' };
           }
           return filed;
         });
@@ -163,6 +139,17 @@ export const useEasyForm = <T extends Record<string, unknown>>({
       });
     },
     [],
+  );
+
+  const updateEvent: UpdateEvent = useCallback(
+    (e) => {
+      if (!e || !e.target) return;
+      const { value, type, checked, name } = e.target;
+      const v = type === 'checkbox' ? checked : value;
+
+      setValueManually(name, v);
+    },
+    [setValueManually],
   );
 
   const submitEvent: OnSubmit<T> = useCallback(
