@@ -474,7 +474,6 @@ describe('useEasyForm()', () => {
   });
 
   it('updateDefaultValues function', () => {
-    console.log('test')
     const { result } = renderHook(() =>
       useEasyForm({ initialForm: mockArray }),
     );
