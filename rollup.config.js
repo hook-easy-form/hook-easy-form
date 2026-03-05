@@ -1,21 +1,19 @@
 import sourceMap from 'rollup-plugin-sourcemaps';
-import typescript from 'rollup-plugin-typescript2';
 import { uglify } from 'rollup-plugin-uglify';
 
-import pj  from './package.json';
+import pj from './package.json';
+
+const external = ['react'];
 
 export default {
-	input: 'dist/index.js',
-	output: [
+  input: 'dist/index.js',
+  external,
+  output: [
     {
       file: pj.main,
       format: 'cjs',
-			name: 'MyEasyForm',
       exports: 'named',
       sourcemap: true,
-			globals: {
-				react: 'React',
-			}
     },
     {
       file: pj.module,
@@ -24,12 +22,8 @@ export default {
       sourcemap: true,
     },
   ],
-	plugins: [
-		sourceMap(),
-		typescript({
-      rollupCommonJSResolveHack: false,
-      clean: true,
-    }),
+  plugins: [
+    sourceMap(),
     uglify(),
-	]
-}
+  ],
+};
