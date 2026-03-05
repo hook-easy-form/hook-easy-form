@@ -64,6 +64,26 @@ export const useEasyForm = <T extends Record<string, unknown>>({
   const [formArray, setFormArray] = useState<FormArray<T>>(
     updatedInitialForm.current,
   );
+  const formArrayRef = useRef<FormArray<T>>(updatedInitialForm.current);
+
+  const updateFormArrayState = useCallback(
+    (
+      next:
+        | FormArray<T>
+        | ((prev: FormArray<T>) => FormArray<T>),
+    ) => {
+      setFormArray((prev) => {
+        const resolvedNext =
+          typeof next === 'function'
+            ? (next as (prev: FormArray<T>) => FormArray<T>)(prev)
+            : next;
+
+        formArrayRef.current = resolvedNext;
+        return resolvedNext;
+      });
+    },
+    [],
+  );
 
   const formObject = useMemo(() => transformArrayToObject<T>(formArray), [
     formArray,
@@ -85,12 +105,12 @@ export const useEasyForm = <T extends Record<string, unknown>>({
   );
 
   const resetEvent: ResetEvent = useCallback(() => {
-    setFormArray(updatedInitialForm.current);
-  }, []);
+    updateFormArrayState(updatedInitialForm.current);
+  }, [updateFormArrayState]);
 
   const multipleFieldUpdate: MultipleFieldUpdate<T> = useCallback((fields) => {
-    setFormArray((ps) => multiUpdate(ps, fields));
-  }, []);
+    updateFormArrayState((ps) => multiUpdate(ps, fields));
+  }, [updateFormArrayState]);
 
   const updateDefaultValues: UpdateDefaultValues<T> = useCallback(
     (v) => {
@@ -109,13 +129,13 @@ export const useEasyForm = <T extends Record<string, unknown>>({
 
     const newInitialForm = setPropertiesToForm(array);
     updatedInitialForm.current = newInitialForm;
-    setFormArray(newInitialForm);
-  }, []);
+    updateFormArrayState(newInitialForm);
+  }, [updateFormArrayState]);
 
   const runValidate: RunValidate<keyof T> = useCallback((name) => {
     if (!name) return;
 
-    setFormArray((ps) =>
+    updateFormArrayState((ps) =>
       ps.map((filed) => {
         if (filed.name === name) {
           const otherValues = getOtherValues<T>(ps, filed.name);
@@ -127,11 +147,11 @@ export const useEasyForm = <T extends Record<string, unknown>>({
         return filed;
       }),
     );
-  }, []);
+  }, [updateFormArrayState]);
 
   const setErrorManually: SetErrorManually<keyof T> = useCallback(
     (name, error) => {
-      setFormArray((ps) =>
+      updateFormArrayState((ps) =>
         ps.map((filed) =>
           filed.name === name
             ? { ...filed, touched: true, error, isValidField: false }
@@ -139,48 +159,45 @@ export const useEasyForm = <T extends Record<string, unknown>>({
         ),
       );
     },
-    [],
+    [updateFormArrayState],
   );
 
   const setValueManually: SetValueManually<keyof T> = useCallback(
     (name, value) => {
-      setFormArray((ps) => updateFieldWithValidation(ps, name, value));
+      updateFormArrayState((ps) => updateFieldWithValidation(ps, name, value));
     },
-    [],
+    [updateFormArrayState],
   );
 
   const setValue: SetValue<T, keyof T> = useCallback(
     (name, nextValue) => {
-      let updatedForm: FormArray<T> | null = null;
+      const previousFormArray = formArrayRef.current;
+      if (!name) return transformArrayToObject<T>(previousFormArray);
 
-      setFormArray((ps) => {
-        if (!name) {
-          updatedForm = ps;
-          return ps;
-        }
+      const previousFormObject = transformArrayToObject<T>(previousFormArray);
+      const previousField = previousFormObject[name];
+      const previousValue = previousField
+        ? (previousField.value as T[keyof T])
+        : (undefined as T[keyof T]);
 
-        const previousFormObject = transformArrayToObject<T>(ps);
-        const previousField = previousFormObject[name];
-        const previousValue = previousField
-          ? (previousField.value as T[keyof T])
-          : (undefined as T[keyof T]);
+      const resolvedValue =
+        typeof nextValue === 'function'
+          ? (nextValue as (
+              prevValue: T[keyof T],
+              previousForm: FormObject<T>,
+            ) => T[keyof T])(previousValue, previousFormObject)
+          : nextValue;
 
-        const resolvedValue =
-          typeof nextValue === 'function'
-            ? (nextValue as (
-                prevValue: T[keyof T],
-                previousForm: FormObject<T>,
-              ) => T[keyof T])(previousValue, previousFormObject)
-            : nextValue;
+      const newForm = updateFieldWithValidation<T>(
+        previousFormArray,
+        name,
+        resolvedValue,
+      );
+      updateFormArrayState(newForm);
 
-        const newForm = updateFieldWithValidation<T>(ps, name, resolvedValue);
-        updatedForm = newForm;
-        return newForm;
-      });
-
-      return transformArrayToObject<T>(updatedForm ?? formArray);
+      return transformArrayToObject<T>(newForm);
     },
-    [formArray],
+    [updateFormArrayState],
   );
 
   const updateEvent: UpdateEvent = useCallback(
@@ -204,7 +221,7 @@ export const useEasyForm = <T extends Record<string, unknown>>({
       const otherValues = getOtherValues(formArray);
       const hasAnyErrorInForm = hasAnyErrorsInForm(formArray, otherValues);
       if (hasAnyErrorInForm) {
-        setFormArray(
+        updateFormArrayState(
           formArray.map((filed) => {
             const error =
               filed.error ||
@@ -227,7 +244,7 @@ export const useEasyForm = <T extends Record<string, unknown>>({
       await callback(data, e);
       if (resetAfterSubmit) resetEvent();
     },
-    [resetEvent, resetAfterSubmit, formArray],
+    [resetEvent, resetAfterSubmit, formArray, updateFormArrayState],
   );
 
   const getProps: GetProps<T, keyof T> = useCallback(
