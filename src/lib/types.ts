@@ -19,6 +19,10 @@ export type RunValidate<K> = (name: K) => void;
 export type UpdateEvent = (e?: any) => void;
 export type SetErrorManually<K> = (name: K, error?: string) => void;
 export type SetValueManually<K> = (name: K, value?: any) => void;
+export type SetValue<T, K extends keyof T> = (
+  name: K,
+  value?: T[K] | ((prevValue: T[K], previousForm: FormObject<T>) => T[K]),
+) => FormObject<T>;
 export type MultipleFieldUpdate<T> = (v: Partial<T>) => void;
 export type UpdateDefaultValues<T> = (v: Partial<T>) => void;
 export type UpdateFormArray<T> = (array: FormArray<T>) => void;
@@ -50,11 +54,12 @@ type HookTypes<T> = {
   disabled: boolean;
 };
 
-type HookMethods<T, K> = {
+type HookMethods<T, K extends keyof T> = {
   resetEvent: ResetEvent;
   updateEvent: UpdateEvent;
   setErrorManually: SetErrorManually<K>;
   setValueManually: SetValueManually<K>;
+  setValue: SetValue<T, K>;
   multipleFieldUpdate: MultipleFieldUpdate<T>;
   updateDefaultValues: UpdateDefaultValues<T>;
   _updateFormArray: UpdateFormArray<T>;

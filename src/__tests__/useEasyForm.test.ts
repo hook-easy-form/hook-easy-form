@@ -415,6 +415,57 @@ describe('useEasyForm()', () => {
     expect(result.current.formObject).toEqual(expectedMockObject);
   });
 
+  it('setValue returns updated form when value is provided', () => {
+    const { result } = renderHook(() =>
+      useEasyForm({ initialForm: mockArray }),
+    );
+
+    let formFromSetter;
+    act(() => {
+      formFromSetter = result.current.setValue('FN', 'Tony');
+    });
+
+    const updatedField = {
+      ...expectedMockObject.FN,
+      value: 'Tony',
+      touched: true,
+    };
+
+    const expectedFormObject = {
+      FN: updatedField,
+    };
+
+    expect(result.current.formObject).toEqual(expectedFormObject);
+    expect(formFromSetter).toEqual(expectedFormObject);
+  });
+
+  it('setValue handles updater functions with previous value', () => {
+    const { result } = renderHook(() =>
+      useEasyForm({ initialForm: mockArray }),
+    );
+
+    let formFromSetter;
+    act(() => {
+      formFromSetter = result.current.setValue(
+        'FN',
+        (prevValue, form) => `${prevValue}-${form.FN.value}`,
+      );
+    });
+
+    const updatedField = {
+      ...expectedMockObject.FN,
+      value: 'John-John',
+      touched: true,
+    };
+
+    const expectedFormObject = {
+      FN: updatedField,
+    };
+
+    expect(result.current.formObject).toEqual(expectedFormObject);
+    expect(formFromSetter).toEqual(expectedFormObject);
+  });
+
   it('multipleFieldUpdate func simple case', () => {
     const { result } = renderHook(() =>
       useEasyForm({
