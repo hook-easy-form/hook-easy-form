@@ -1,10 +1,14 @@
 ## hook-easy-form
+
 ![npm](https://img.shields.io/npm/dm/hook-easy-form.svg?label=%E2%8F%ACdownloads&style=for-the-badge)
 ![npm](https://img.shields.io/npm/v/hook-easy-form.svg?style=for-the-badge)
 ![NPM](https://img.shields.io/npm/l/hook-easy-form.svg?label=%F0%9F%93%9Clicense&style=for-the-badge)
 
-Simple way to manage your form with custom hook.
-Please visit [documentation](https://hook-forms-documentation.leonskottkenedi.vercel.app) for get more information
+`hook-easy-form` is a lightweight React hook to manage form state, validation, and submission with minimal boilerplate.
+
+- 📚 Documentation: [hook-forms-documentation.leonskottkenedi.vercel.app](https://hook-forms-documentation.leonskottkenedi.vercel.app)
+- ✅ Works with TypeScript
+- ⚡ Good defaults for simple and medium-sized forms
 
 ## Installation
 
@@ -12,174 +16,186 @@ Please visit [documentation](https://hook-forms-documentation.leonskottkenedi.ve
 npm install hook-easy-form
 ```
 
-## Usage
+## Quick start
 
-<details>
-  <summary>Simple form</summary>
-  
-```jsx
+```tsx
 import React from 'react';
-import easyHook from 'hook-easy-form';
+import useEasyForm from 'hook-easy-form';
 
-const form = [
+const initialForm = [
   {
     name: 'firstName',
     value: '',
-    options: {
-      type: 'text',
-    },
-  },
-  {
-    name: 'lastName',
-    value: '',
-    options: {
-      type: 'text',
-    }
+    required: true,
+    options: { type: 'text', placeholder: 'First name' },
   },
   {
     name: 'age',
     value: '',
-    options: {
-      type: 'number',
-    }
-  },
-]
-
-const FormComponent = () => {
-  const { formArray, updateEvent, resetEvent, submitEvent, pristine } = easyHook({ initialForm: form });
-  const submit = (v) => console.log(v);
-
-  return <form onSubmit={submitEvent(submit)}>
-    {formArray.map(el => <input
-      key={el.name} 
-      name={el.name}
-      type={el.options.type} 
-      value={el.value}
-      onChange={updateEvent}
-      />
-    )}
-    <button onClick={resetEvent} disabled={pristine}>reset</button>
-    <button type="submit" disabled={pristine}>submit</button>
-  </form>
-}
-```
-</details>
-
-<details>
-  <summary>Simple form with validation and without tag <b>form</b> </summary>
-
-  ```jsx
-import React from 'react';
-import easyHook from 'hook-easy-form';
-
-const form = [
-  {
-    name: 'firstName',
-    value: '',
-    options: {
-      type: 'text',
-    },
-    validate: {
-      required: v => v.trim() === '' ? 'Required' : '',
-    }
-  },
-  {
-    name: 'lastName',
-    value: '',
-    options: {
-      type: 'text',
-    }
-    validate: {
-      required: v => v.trim() === '' ? 'Required' : '',
-    }
-  },
-  {
-    name: 'age',
-    value: '',
-    options: {
-      type: 'number',
-    }
-    validate: {
-      required: v => v.trim() === '' ? 'Required' : '',
-      availableAge: v => v > 0 && v < 100 ? '' : 'Invalid'
-    }
-  },
-]
-
-const FormComponent = () => {
-  const { formArray, updateEvent, resetEvent, submitEvent, pristine } = easyHook({ initialForm: form });
-  const submit = (v) => console.log(v);
-  
-  return <div>
-    {formArray.map(el => <div>
-      <input
-        key={el.name} 
-        name={el.name}
-        type={el.options.type} 
-        value={el.value}
-        onChange={updateEvent}
-      />
-      {el.touched && el.error && <span>{el.error}</span>}
-    </div>
-    )}
-    <button onClick={resetEvent} disabled={pristine}>reset</button>
-    <button onClick={submitEvent(submit)} disabled={pristine}>submit</button>
-  </div>
-}
-```
-</details>
-
-<details>
-  <summary>Simple form with default values</summary>
-
-```jsx
-import React from 'react';
-import easyHook from 'hook-easy-form';
-
-const sayHelloForm = [
-  {
-    name: 'firstName',
-    value: '',
-    options: {
-      type: 'text',
-      placeholder: 'FirstName',
-    },
-  },
-  {
-    name: 'lastName',
-    value: '',
-    options: {
-      type: 'text',
-      placeholder: 'LastName',
-    },
+    options: { type: 'number', min: 0 },
   },
 ];
 
-const FormComponent = () => {
-  const {
-    formArray,
-    submitEvent,
-    updateEvent,
-    resetEvent,
-    pristine
-  } = MyEasyForm({
-    initialForm: sayHelloForm,
-    defaultValues: { firstName: 'Tony,', lastName: 'Stark' }
+export const ProfileForm = () => {
+  const { formArray, submitEvent, resetEvent, getProps, pristine, valid } =
+    useEasyForm({ initialForm });
+
+  const onSubmit = submitEvent((values) => {
+    console.log('submitted values', values);
   });
 
-  const submit = v => console.log(v)
+  return (
+    <form onSubmit={onSubmit}>
+      {formArray.map((field) => (
+        <input key={field.name} {...getProps(field.name, field.options)} />
+      ))}
+
+      <button type="submit" disabled={!valid}>
+        Submit
+      </button>
+      <button type="button" onClick={resetEvent} disabled={pristine}>
+        Reset
+      </button>
+    </form>
+  );
+};
+```
+
+## Examples
+
+### Basic form
+
+```jsx
+import React from 'react';
+import useEasyForm from 'hook-easy-form';
+
+const form = [
+  { name: 'firstName', value: '', options: { type: 'text' } },
+  { name: 'lastName', value: '', options: { type: 'text' } },
+  { name: 'age', value: '', options: { type: 'number' } },
+];
+
+const FormComponent = () => {
+  const { formArray, updateEvent, resetEvent, submitEvent, pristine } =
+    useEasyForm({ initialForm: form });
+
+  const submit = (values) => console.log(values);
+
   return (
     <form onSubmit={submitEvent(submit)}>
       {formArray.map((el) => (
         <input
           key={el.name}
           name={el.name}
-          type={el.options ? el.options.type : 'text'}
-          placeholder={el.options ? el.options.placeholder : ''}
+          type={el.options.type}
           value={el.value}
           onChange={updateEvent}
         />
       ))}
+      <button type="button" onClick={resetEvent} disabled={pristine}>
+        Reset
+      </button>
+      <button type="submit" disabled={pristine}>
+        Submit
+      </button>
+    </form>
+  );
+};
+```
+
+### Validation without a `<form>` element
+
+```jsx
+import React from 'react';
+import useEasyForm from 'hook-easy-form';
+
+const form = [
+  {
+    name: 'firstName',
+    value: '',
+    options: { type: 'text' },
+    validate: {
+      required: (v) => (v.trim() === '' ? 'Required' : ''),
+    },
+  },
+  {
+    name: 'age',
+    value: '',
+    options: { type: 'number' },
+    validate: {
+      required: (v) => (v.trim() === '' ? 'Required' : ''),
+      availableAge: (v) => (v > 0 && v < 100 ? '' : 'Invalid age'),
+    },
+  },
+];
+
+const FormComponent = () => {
+  const { formArray, updateEvent, submitEvent, pristine } =
+    useEasyForm({ initialForm: form });
+
+  const submit = (values) => console.log(values);
+
+  return (
+    <div>
+      {formArray.map((el) => (
+        <div key={el.name}>
+          <input
+            name={el.name}
+            type={el.options.type}
+            value={el.value}
+            onChange={updateEvent}
+          />
+          {el.touched && el.error && <span>{el.error}</span>}
+        </div>
+      ))}
+
+      <button type="button" onClick={submitEvent(submit)} disabled={pristine}>
+        Submit
+      </button>
+    </div>
+  );
+};
+```
+
+### Default values
+
+```jsx
+import React from 'react';
+import useEasyForm from 'hook-easy-form';
+
+const sayHelloForm = [
+  {
+    name: 'firstName',
+    value: '',
+    options: { type: 'text', placeholder: 'First name' },
+  },
+  {
+    name: 'lastName',
+    value: '',
+    options: { type: 'text', placeholder: 'Last name' },
+  },
+];
+
+const FormComponent = () => {
+  const { formArray, submitEvent, updateEvent, resetEvent, pristine } =
+    useEasyForm({
+      initialForm: sayHelloForm,
+      defaultValues: { firstName: 'Tony', lastName: 'Stark' },
+    });
+
+  return (
+    <form onSubmit={submitEvent((v) => console.log(v))}>
+      {formArray.map((el) => (
+        <input
+          key={el.name}
+          name={el.name}
+          type={el.options?.type || 'text'}
+          placeholder={el.options?.placeholder || ''}
+          value={el.value}
+          onChange={updateEvent}
+        />
+      ))}
+
       <button type="submit" disabled={pristine}>
         Submit
       </button>
@@ -187,129 +203,63 @@ const FormComponent = () => {
         Reset
       </button>
     </form>
-  )
-}
-
-```
-</details>
-
-<details>
-  <summary>Simple typescript example </summary>
-
-
-  ```jsx
-  import easyHook from 'hook-easy-form';
-
-  type FormData = {
-    firstName: string;
-    lastName: string;
-  };
-
-  const Component = () => {
-    const { formObject, submitEvent, disabled, valid, runValidate, getProps } =
-      useEasyForm<FormData>({
-        initialForm: [
-          {
-            name: 'firstName',
-            value: '',
-            required: true,
-            options: {
-              type: 'text',
-            },
-          },
-          {
-            name: 'lastName',
-            value: '',
-            required: true,
-            options: {
-              type: 'text',
-            },
-          },
-        ],
-      });
-
-    const { firstName, lastName } = formObject;
-
-    const onSubmit = submitEvent((d) => console.log('d', d));
-
-    const onBlur = (e: React.FocusEvent<HTMLInputElement>) =>
-      runValidate(e.target.name);
-
-    return (
-      <div>
-        <form onSubmit={onSubmit}>
-          <input
-            {...getProps('firstName', firstName.options)}
-            onBlur={onBlur}
-          />
-          <input
-            {...getProps('lastName', lastName.options)}
-            onBlur={onBlur}
-          />
-
-          <button
-            type="submit"
-            disabled={disabled || !valid}
-          >
-            submit
-          </button>
-        </form>
-      </div>
-    );
-  };
-  ```
-</details>
-
-
-## Hook props
-
-* __initialForm__ is array of objects (required)
-
-| Name | Type | Default | Required | Description |
-| --- | --- | --- | --- | --- |
-| name | `string` | `-` | true | Name of input, unique identifier of each field |
-| value | `any` | undefined | false | Value for this object (filed) |
-| error | `string` | ` ` | false | String error |
-| touched | `boolean` | false | false | The value indicates whether it has been changed before |
-| isValidField | `boolean` | true | false | a boolean value which mean the field it was touched and doesn't have any validation errors |
-| validate | `object of rules` | {} | false | Object with functions for validate, function receive two arguments, current value and object with otherValues |
-| required | `boolean` | false | false | This field will be track inside `disabled` property |
-| onChangeValidate | `boolean` | false | false | Should validate this field each time when it change? |
-| options | `object` | {} | false | Object for rest user properties, it can be - type, placeholder, label, some options etc |
-
-
-* __resetAfterSubmit__
-
-| Name | Type | Default | Required | Description |
-| --- | --- | --- | --- | --- |
-| resetAfterSubmit | `boolean` | false | false | Property for reset form after success submit |
-
-
-## Hook actions API
-
-```javascript
-  formArray // form = array of objects
-  formObject // form = object for non iterable cases
-  updateEvent // event for onChange 
-  resetEvent // reset form manually
-  updateDefaultValues // dynamically set default values
-  updateFormArray // dynamically set form array
-  multipleFieldUpdate // update multiple values func 
-  submitEvent // takes a callback as a param, return to callback formatted object
-  setErrorManually // takes a name and error string as a params, and immediately set error for current name
-  setValueManually // takes a name and value as a params, and immediately set value for current name
-  pristine // true when the current form values are the same as the initialValues, false otherwise.
-  valid // true when the form is valid (has no validation errors), false otherwise.
-  disabled // boolean, calculated from required properties
-  runValidate // takes a name and runs all validations functions belongs to this field
-  getProps // takes a name, some object with params(optional), and boolean value for exclude not valid Dom attr (optional) => returns object with future props for element
+  );
+};
 ```
 
-## Contribute
+### TypeScript with typed fields
 
-1. Fork it: `git clone https://github.com/hook-easy-form/hook-easy-form.git`
-2. Create your feature branch: `git checkout -b feature/my-new-feature`
-3. Commit your changes: `git commit -am 'Added some feature'`
-4. Check the build: `npm run build`
-4. Push to the branch: `git push origin my-new-feature`
-5. Submit a pull request :D
+```tsx
+import React from 'react';
+import useEasyForm from 'hook-easy-form';
+
+type FormData = {
+  firstName: string;
+  lastName: string;
+};
+
+const Component = () => {
+  const { formObject, submitEvent, disabled, valid, runValidate, getProps } =
+    useEasyForm<FormData>({
+      initialForm: [
+        {
+          name: 'firstName',
+          value: '',
+          required: true,
+          options: { type: 'text' },
+        },
+        {
+          name: 'lastName',
+          value: '',
+          required: true,
+          options: { type: 'text' },
+        },
+      ],
+    });
+
+  const { firstName, lastName } = formObject;
+
+  return (
+    <form onSubmit={submitEvent((data) => console.log(data))}>
+      <input
+        {...getProps('firstName', firstName.options)}
+        onBlur={(e) => runValidate(e.target.name)}
+      />
+      <input
+        {...getProps('lastName', lastName.options)}
+        onBlur={(e) => runValidate(e.target.name)}
+      />
+
+      <button type="submit" disabled={disabled || !valid}>
+        Submit
+      </button>
+    </form>
+  );
+};
+```
+
+## Notes
+
+- Use `submitEvent(callback)` to get a submit handler.
+- Use `resetEvent` to go back to the initial/default values.
+- Use `runValidate(name)` to trigger field-level validation manually.
